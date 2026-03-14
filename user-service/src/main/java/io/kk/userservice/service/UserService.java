@@ -68,5 +68,10 @@ public class UserService {
 
         userRepository.delete(existingUser);
     }
+
+    public Boolean isUserExisting(Long userId) {
+        var  existingUser = userRepository.findById(userId);
+        return existingUser.isPresent();
+    }
 }
 

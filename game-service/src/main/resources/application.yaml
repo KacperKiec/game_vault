@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: game-service
+  datasource:
+    url: jdbc:postgresql://localhost:5433/game_db
+    username: game
+    password: game
+    driver-class-name: org.postgresql.Driver
+    jpa:
+      hibernate:
+        ddl-auto: update
+      properties:
+        hibernate:
+          format_sql: true
+server:
+  port: 8090
+
+app:
+  secret-key: "dlugi_i_sekretny_klucz_do_podpisywania_tokenow"
+  user-service-url: "http://localhost:8080"
+  rawgio-api:
+    key: ${RAWGIO_API_KEY}
+    uri: https://api.rawg.io/api

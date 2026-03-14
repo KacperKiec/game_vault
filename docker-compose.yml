@@ -12,9 +12,23 @@ services:
     ports:
       - "5432:5432"
 
+  game-db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: game
+      POSTGRES_PASSWORD: game
+      POSTGRES_DB: game_db
+    volumes:
+      - game_data:/var/lib/postgresql/data
+    networks:
+      - net
+    ports:
+      - "5433:5432"
+
 networks:
   net:
     driver: bridge
 
 volumes:
   user_data:
+  game_data:

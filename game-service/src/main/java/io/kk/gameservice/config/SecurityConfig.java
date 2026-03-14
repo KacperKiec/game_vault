@@ -1,7 +1,9 @@
-package io.kk.userservice.config;
+package io.kk.gameservice.config;
 
-import io.kk.userservice.util.JWTUtil;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -10,8 +12,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
@@ -22,6 +22,8 @@ import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 @Configuration
@@ -29,7 +31,17 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JWTUtil jwtUtil;
+    @Value("${app.secret-key}")
+    private String SECRET_STRING;
+    private SecretKey SECRET_KEY;
+
+    @PostConstruct
+    public void init() {
+        if (SECRET_STRING == null || SECRET_STRING.length() < 32) {
+            throw new IllegalArgumentException("Secret key must be at least 32 characters long!");
+        }
+        this.SECRET_KEY = Keys.hmacShaKeyFor(SECRET_STRING.getBytes(StandardCharsets.UTF_8));
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -38,9 +50,8 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/users/**").authenticated()
-                        .requestMatchers("/internal/**").authenticated()
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/list/**").authenticated()
+                        .requestMatchers("/api/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
@@ -54,7 +65,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        return NimbusJwtDecoder.withSecretKey(jwtUtil.getSecretKey()).build();
+        return NimbusJwtDecoder.withSecretKey(SECRET_KEY).build();
     }
 
     @Bean
@@ -80,10 +91,5 @@ public class SecurityConfig {
                         .defaultIfEmpty(request)
                         .flatMap(next::exchange))
                 .build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }
