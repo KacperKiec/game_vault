@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@source "../../index.html";
+@source "../**/*.{vue,js,ts,jsx,tsx}";
+
+@plugin "daisyui";
+
+:root {
+    --primary: #6366f1;
+    --primary-focus: #4f46e5;
+    --secondary: #22d3ee;
+    --accent: #f472b6;
+    --neutral: #1e1e2e;
+    --base-100: #0f0f17;
+    --base-200: #1a1a2e;
+    --base-300: #252540;
+    --base-content: #e2e8f0;
+}
