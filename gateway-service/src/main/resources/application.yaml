@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: gateway-service
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "${FRONTEND_URL:http://localhost:5173}"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            allow-credentials: true
+      routes:
+        - id: user-service
+          uri: "${USER_SERVICE_URL:http://localhost:8080}"
+          predicates:
+            - Path=/auth/**, /internal/**, /users/**
+        - id: game-service
+          uri: "${GAME_SERVICE_URL:http://localhost:8090}"
+          predicates:
+            - Path=/api/**, /list/**
+management:
+  endpoints:
+    web:
+      exposure:
+        include: gateway, health
+server:
+  port: 9000
+  forward-headers-strategy: framework
+  address: 0.0.0.0
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.security.web.FilterChainProxy: DEBUG
+    org.springframework.web.cors: DEBUG
+    org.springframework.web: DEBUG

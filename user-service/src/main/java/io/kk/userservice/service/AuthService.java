@@ -31,7 +31,7 @@ public class AuthService {
 
         String jwt = jwtUtil.generateToken(user.getId(), user.getUsername(), user.getRole());
 
-        return new AuthResponseDTO(jwt, user.getRole());
+        return new AuthResponseDTO(jwt, user.getId(), user.getUsername(), user.getRole());
     }
 
     private boolean checkPassword(String plainPassword, String hashedPassword) {

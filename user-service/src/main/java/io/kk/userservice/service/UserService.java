@@ -22,7 +22,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserResponseDTO addUser(UserRegisterDTO userRegisterDTO) {
+    public Boolean addUser(UserRegisterDTO userRegisterDTO) {
         var existingUser = userRepository.findByEmail(userRegisterDTO.email());
 
         if (existingUser.isPresent()) throw new UserAlreadyExistException("User already exists");
@@ -33,14 +33,9 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(userRegisterDTO.password()));
         user.setRole(Role.USER);
 
-        var saved = userRepository.save(user);
+        userRepository.save(user);
 
-        return UserResponseDTO.builder()
-                .id(saved.getId())
-                .email(saved.getEmail())
-                .username(saved.getUsername())
-                .role(saved.getRole())
-                .build();
+        return true;
     }
 
     public UserResponseDTO updateUser(UserUpdateRequestDTO updateRequestDTO) {

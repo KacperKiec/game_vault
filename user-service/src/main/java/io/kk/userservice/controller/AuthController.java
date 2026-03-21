@@ -1,6 +1,7 @@
 package io.kk.userservice.controller;
 
 import io.kk.userservice.dto.AuthRequestDTO;
+import io.kk.userservice.dto.AuthResponseDTO;
 import io.kk.userservice.dto.UserRegisterDTO;
 import io.kk.userservice.service.AuthService;
 import io.kk.userservice.service.UserService;
@@ -21,14 +22,14 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserRegisterDTO dto) {
+    public ResponseEntity<Boolean> register(@RequestBody UserRegisterDTO dto) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(userService.addUser(dto));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequestDTO dto) {
+    public ResponseEntity<AuthResponseDTO> login(@RequestBody AuthRequestDTO dto) {
         return ResponseEntity
                 .status(HttpStatus.ACCEPTED)
                 .body(authService.login(dto));

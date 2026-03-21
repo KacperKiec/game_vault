@@ -5,7 +5,7 @@
 
 @plugin "daisyui";
 
-:root {
+@theme {
     --primary: #6366f1;
     --primary-focus: #4f46e5;
     --secondary: #22d3ee;
@@ -15,4 +15,5 @@
     --base-200: #1a1a2e;
     --base-300: #252540;
     --base-content: #e2e8f0;
+    --blackout: #000000;
 }

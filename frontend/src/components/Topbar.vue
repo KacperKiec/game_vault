@@ -4,6 +4,13 @@ import { storeToRefs } from 'pinia';
 
 const authStore = useAuthStore();
 const { isAuthenticated, username } = storeToRefs(authStore);
+
+const emit = defineEmits(['openAuthDialog']);
+
+const openAuthDialog = () => {
+  emit('openAuthDialog');
+};
+
 </script>
 
 <template>
@@ -27,9 +34,9 @@ const { isAuthenticated, username } = storeToRefs(authStore);
       </RouterLink>
 
       <div v-if="!isAuthenticated">
-        <RouterLink to="/login" class="btn btn-primary btn-sm rounded-md px-6">
+        <button class="btn btn-primary btn-sm rounded-md px-6" @click="openAuthDialog">
           Log In
-        </RouterLink>
+        </button>
       </div>
 
       <div v-else class="dropdown dropdown-end">
