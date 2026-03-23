@@ -4,9 +4,14 @@ import Sidebar from "@/components/Sidebar.vue";
 import Topbar from "@/components/Topbar.vue";
 import AuthDialog from "@/components/auth/AuthDialog.vue";
 import { ref } from 'vue';
+import {GameResponse} from "@/types/types";
 
 const isAuthOpen = ref(false);
+const displayedGames = ref<GameResponse[]>([]);
 
+const handleNewGames = (games: GameResponse[]) => {
+  displayedGames.value = games;
+};
 
 </script>
 
@@ -15,7 +20,7 @@ const isAuthOpen = ref(false);
     <Topbar @openAuthDialog="isAuthOpen = true"/>
 
     <div class="flex gap-6">
-      <Sidebar class="md:flex flex-col" />
+      <Sidebar class="md:flex flex-col" @set-games="handleNewGames"/>
 
       <main class="flex-1">
         <router-view />

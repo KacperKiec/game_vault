@@ -11,6 +11,12 @@ export const authService = {
             body: JSON.stringify(dto),
         });
 
+        if (response.status === 401) {
+            const errorData = await response.json();
+            const message = errorData.user || errorData.message || "Logging in failed";
+            throw new Error(message);
+        }
+
         if (!response.ok) {
             throw new Error('Error while logging in');
         }
@@ -30,6 +36,12 @@ export const authService = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(dto),
         });
+
+        if (response.status === 400) {
+            const errorData = await response.json();
+            const message = errorData.email || errorData.message || "Validation failed";
+            throw new Error(message);
+        }
 
         if (!response.ok) {
             throw new Error('Error while registering');

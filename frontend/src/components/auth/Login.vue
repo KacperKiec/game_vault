@@ -11,8 +11,11 @@ const router = useRouter();
 const username = ref('');
 const password = ref('');
 const showTip = ref(false);
+const loginFeedback = ref('');
 
 const handleLogin = async () => {
+  showTip.value = false;
+  loginFeedback.value = '';
   if (username.value.trim() !== '' && password.value.trim() !== '') {
 
     try {
@@ -28,6 +31,11 @@ const handleLogin = async () => {
         await router.push('/');
       }
     } catch (err) {
+      if (err instanceof Error) {
+        loginFeedback.value = err.message;
+      } else {
+        loginFeedback.value = 'Unexpected error occurred';
+      }
       console.error(err);
     }
 
@@ -50,6 +58,9 @@ const handleLogin = async () => {
 
     <p v-if="showTip" class="text-error text-xs">Fill in your login details</p>
     <button @click="handleLogin" class="btn btn-primary btn-sm rounded-md px-6 mt-2">Confirm</button>
+
+
+    <p v-if="loginFeedback.length > 0" class="text-error text-xs">{{ loginFeedback }}</p>
   </div>
 </template>
 

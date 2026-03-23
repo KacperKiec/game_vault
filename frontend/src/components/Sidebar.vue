@@ -1,6 +1,44 @@
 <script setup lang="ts">
+import {GameListResponse, GameResponse, ListType} from "@/types/types";
+import {onMounted, ref} from "vue";
+import {storeToRefs} from "pinia";
+import {useAuthStore} from "@/store/auth";
+import {gameListService} from "@/service/game-list-service";
+
+const emit = defineEmits(['setGames']);
+
+  const setGames = (games: GameResponse[]) => {
+    emit('setGames', games);
+  };
+
+  const authStore = useAuthStore();
+  const activeList = ref(ListType.NONE)
+  const { isAuthenticated } = storeToRefs(authStore);
+
   const platforms = [];
   const genres = [];
+  const lists = ref<GameListResponse>({ wishlist: [], gamesToPlay: [], completedGames: [] });
+
+  onMounted(async () => {
+    if (isAuthenticated.value) {
+      try {
+        lists.value = await gameListService.getUserLists();
+      } catch (err) {
+        console.error("Failed to fetch lists:", err);
+      }
+    }
+  });
+
+  const setList = (type: ListType) => {
+    let games: GameResponse[] = [];
+    switch (type) {
+      case ListType.WISHLIST: games = lists.value.wishlist; break;
+      case ListType.TODO: games = lists.value.gamesToPlay; break;
+      case ListType.COMPLETED: games = lists.value.completedGames; break;
+      default: break;
+    }
+    setGames(games);
+  }
 </script>
 
 <template>
@@ -15,16 +53,17 @@
       </label>
     </div>
 
-    <!-- Lists Navigation -->
-    <div class="menu bg-base-300 rounded-box">
-      <li class="menu-title">My Lists</li>
-<!--      <li><a :class="{ 'active': activeList === 'all' }" @click="setList('all')">📂 All Games</a></li>-->
-<!--      <li><a :class="{ 'active': activeList === 'wishlist' }" @click="setList('wishlist')">⭐ Wishlist <span class="badge badge-sm">24</span></a></li>-->
-<!--      <li><a :class="{ 'active': activeList === 'toplay' }" @click="setList('toplay')">🎯 To Play <span class="badge badge-sm">12</span></a></li>-->
-<!--      <li><a :class="{ 'active': activeList === 'played' }" @click="setList('played')">✅ Played <span class="badge badge-sm">156</span></a></li>-->
+    <div class="menu bg-base-300 rounded-box w-full">
+      <ul v-if="isAuthenticated">
+        <li class="menu-title">My Lists</li>
+        <li><a :class="{ 'active': activeList === ListType.NONE }" @click="setList(ListType.NONE)">📂 All Games</a></li>
+        <li><a :class="{ 'active': activeList === ListType.WISHLIST }" @click="setList(ListType.WISHLIST)">⭐ Wishlist <span class="badge badge-sm">{{ lists.wishlist.length }}</span></a></li>
+        <li><a :class="{ 'active': activeList === ListType.TODO }" @click="setList(ListType.TODO)">🎯 To Play <span class="badge badge-sm">{{ lists.gamesToPlay.length }}</span></a></li>
+        <li><a :class="{ 'active': activeList === ListType.COMPLETED }" @click="setList(ListType.COMPLETED)">✅ Played <span class="badge badge-sm">{{ lists.completedGames.length }}</span></a></li>
+      </ul>
+      <p v-else>Log in to see your game lists</p>
     </div>
 
-    <!-- Collapsible Filters -->
     <div class="collapse collapse-arrow bg-base-300">
       <input type="checkbox" checked />
       <div class="collapse-title font-medium">Platform</div>
@@ -47,7 +86,6 @@
       </div>
     </div>
 
-    <!-- Year Range -->
     <div class="collapse collapse-arrow bg-base-300">
       <input type="checkbox" />
       <div class="collapse-title font-medium">Release Year</div>

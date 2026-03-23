@@ -43,7 +43,7 @@ const openAuthDialog = () => {
         <div tabindex="0" role="button" class="btn btn-ghost btn-sm rounded-md border border-base-300">
           <div class="avatar placeholder mr-2">
             <div class="bg-neutral text-neutral-content rounded-full w-6">
-              <span class="text-xs">{{ username?.charAt(0).toUpperCase() }}</span>
+              <span class="text-xs flex justify-center mt-1">{{ username?.charAt(0).toUpperCase() }}</span>
             </div>
           </div>
           {{ username }}

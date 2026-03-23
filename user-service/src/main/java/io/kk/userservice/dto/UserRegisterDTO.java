@@ -7,7 +7,7 @@ public record UserRegisterDTO(
         @NotBlank
         String username,
 
-        @Email
+        @Email(regexp=".+@.+\\..+", message="Please provide a valid email address")
         @NotBlank
         String email,
 

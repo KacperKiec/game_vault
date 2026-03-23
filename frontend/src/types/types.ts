@@ -15,3 +15,25 @@ export interface UserRegister {
     password: string;
     username: string;
 }
+
+export enum ListType {
+    NONE = "NONE",
+    WISHLIST = 'WISHLIST',
+    TODO = 'TODO',
+    COMPLETED = 'COMPLETED'
+}
+
+export interface GameResponse {
+    guid: number,
+    name: string,
+    category: string[],
+    imageURL: string,
+    releaseDate: Date,
+    description: string
+}
+
+export interface GameListResponse {
+    wishlist: GameResponse[],
+    gamesToPlay: GameResponse[],
+    completedGames: GameResponse[]
+}

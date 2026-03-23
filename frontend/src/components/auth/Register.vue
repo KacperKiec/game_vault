@@ -12,28 +12,40 @@ const email = ref('');
 const username = ref('');
 const password = ref('');
 const showTip = ref(false);
+const emailFeedback = ref('');
 
 const validatePassword = (password: string) => {
   return password.length >= 8;
 }
 
 const handleRegister = async () => {
-  if (username.value.trim() !== '' && email.value.trim() !== '' && validatePassword(password.value)) {
-    try {
-      const dto: UserRegister = {
-        email: email.value,
-        password: password.value,
-        username: username.value
-      }
+  emailFeedback.value = '';
+  showTip.value = false;
+  if (username.value.trim() !== '' && email.value.trim() !== '') {
+    if (validatePassword(password.value)) {
+      try {
+        const dto: UserRegister = {
+          email: email.value,
+          password: password.value,
+          username: username.value
+        }
 
-      const success = await authService.register(dto);
+        const success = await authService.register(dto);
 
-      if (success) {
-        emit('close');
-        await router.push('/');
+        if (success) {
+          emit('close');
+          await router.push('/');
+        }
+      } catch (err) {
+        if (err instanceof Error) {
+          emailFeedback.value = err.message;
+        } else {
+          emailFeedback.value = "An unexpected error occurred";
+        }
+        console.error(err);
       }
-    } catch (err) {
-      console.error(err);
+    } else {
+      showTip.value = true;
     }
   }
 }
@@ -46,6 +58,7 @@ const handleRegister = async () => {
 
     <label for="email" class="label font-semibold">Email</label>
     <input id="email" type="text" placeholder="Email" v-model="email" class="input input-bordered input-accent w-full rounded-xl">
+    <p v-if="emailFeedback.length > 0" class="text-error text-xs">{{ emailFeedback }}</p>
 
     <label for="username" class="label font-semibold">Username</label>
     <input id="username" type="text" placeholder="Username" v-model="username" class="input input-bordered input-accent w-full rounded-xl">

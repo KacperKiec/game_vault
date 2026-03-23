@@ -31,5 +31,5 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.clear();
     }
 
-    return { token, username, role, isAuthenticated, login, logout };
+    return { userId, token, username, role, isAuthenticated, login, logout };
 });

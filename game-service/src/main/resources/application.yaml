@@ -6,12 +6,12 @@ spring:
     username: game
     password: game
     driver-class-name: org.postgresql.Driver
-    jpa:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
       hibernate:
-        ddl-auto: update
-      properties:
-        hibernate:
-          format_sql: true
+        format_sql: true
 server:
   port: 8090
 
