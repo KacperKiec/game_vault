@@ -1,5 +1,6 @@
 package io.kk.gameservice.service;
 
+import io.kk.gameservice.dto.GameDetailsDTO;
 import io.kk.gameservice.dto.GameListRequestDTO;
 import io.kk.gameservice.dto.GameListResponseDTO;
 import io.kk.gameservice.exception.GameNotFoundException;
@@ -7,8 +8,6 @@ import io.kk.gameservice.exception.UserNotFoundException;
 import io.kk.gameservice.model.GameList;
 import io.kk.gameservice.model.ListType;
 import io.kk.gameservice.repository.GameListRepository;
-import io.kk.gameservice.util.Game;
-import io.kk.gameservice.util.Mapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -52,7 +51,7 @@ public class UserGameService {
         }
     }
 
-    List<Game> gameListCreator(Long userId, ListType listType) {
+    List<GameDetailsDTO> gameListCreator(Long userId, ListType listType) {
         return gameListRepository.findByUserIdAndListType(userId, listType).stream()
                 .map((gameList) -> gameAPIService.getGame(gameList.getGameId()))
                 .toList();
@@ -63,9 +62,10 @@ public class UserGameService {
 
         if (!userExists) throw new UserNotFoundException("User not found");
 
-        return Mapper.toGameListResponseDTO(
-                gameListCreator(userId, ListType.WISHLIST),
-                gameListCreator(userId, ListType.TODO),
-                gameListCreator(userId, ListType.COMPLETED));
+        return GameListResponseDTO.builder()
+                .wishlist(gameListCreator(userId, ListType.WISHLIST))
+                .gamesToPlay(gameListCreator(userId, ListType.TODO))
+                .completedGames(gameListCreator(userId, ListType.COMPLETED))
+                .build();
     }
 }

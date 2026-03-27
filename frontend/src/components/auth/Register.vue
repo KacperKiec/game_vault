@@ -11,18 +11,31 @@ const router = useRouter();
 const email = ref('');
 const username = ref('');
 const password = ref('');
+const repeatPassword = ref('');
 const showTip = ref(false);
+const tip = ref('');
 const emailFeedback = ref('');
 
-const validatePassword = (password: string) => {
-  return password.length >= 8;
+const validatePassword = (password: string, repeat: string) => {
+  if (password.length < 8) {
+    tip.value = 'Password must be at least 8 characters long';
+    showTip.value = true;
+    return false;
+  } else if (password != repeat) {
+    tip.value = 'Repeat password properly';
+    showTip.value = true;
+    return false;
+  }
+  return true;
 }
 
 const handleRegister = async () => {
   emailFeedback.value = '';
   showTip.value = false;
+  tip.value = '';
+
   if (username.value.trim() !== '' && email.value.trim() !== '') {
-    if (validatePassword(password.value)) {
+    if (validatePassword(password.value, repeatPassword.value)) {
       try {
         const dto: UserRegister = {
           email: email.value,
@@ -66,7 +79,10 @@ const handleRegister = async () => {
     <label for="pass" class="label font-semibold">Password</label>
     <input id="pass" type="password" placeholder="Password" v-model="password" class="input input-bordered input-accent w-full rounded-xl">
 
-    <p v-if="showTip" class="text-error text-xs">Password must be at least 8 characters long</p>
+    <label for="repeat" class="label font-semibold">Repeat Password</label>
+    <input id="repeat" type="password" placeholder="Repeat Password" v-model="repeatPassword" class="input input-bordered input-accent w-full rounded-xl">
+
+    <p v-if="showTip" class="text-error text-xs">{{ tip }}</p>
     <button @click="handleRegister" class="btn btn-primary btn-sm rounded-md px-6 mt-3">Confirm</button>
   </div>
 </template>

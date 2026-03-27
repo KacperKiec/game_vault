@@ -1,6 +1,7 @@
 package io.kk.gameservice.controller;
 
 import io.kk.gameservice.dto.GameListRequestDTO;
+import io.kk.gameservice.dto.GameListResponseDTO;
 import io.kk.gameservice.service.UserGameService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class ListController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getUserLists(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<GameListResponseDTO> getUserLists(@AuthenticationPrincipal Jwt jwt) {
         Long userId = Long.parseLong(jwt.getSubject());
 
         var result = userGameService.getLists(userId);

@@ -23,17 +23,45 @@ export enum ListType {
     COMPLETED = 'COMPLETED'
 }
 
-export interface GameResponse {
+export interface Game {
     guid: number,
     name: string,
-    category: string[],
-    imageURL: string,
+    genres: string[],
+    platforms: string[],
+    backgroundImage: string,
     releaseDate: Date,
-    description: string
+    listType: ListType
+}
+
+export interface GameDetails {
+    guid: number,
+    name: string,
+    genres: string[],
+    platforms: string[],
+    backgroundImage: string,
+    releaseDate: Date,
+    listType: ListType,
+    description: string,
 }
 
 export interface GameListResponse {
-    wishlist: GameResponse[],
-    gamesToPlay: GameResponse[],
-    completedGames: GameResponse[]
+    wishlist: Game[],
+    gamesToPlay: Game[],
+    completedGames: Game[]
+}
+
+export interface Param {
+    name: string,
+    slug: string
+}
+
+export interface GameParams {
+    genres: Param[],
+    platforms: Param[]
+}
+
+export interface GameAPIParams {
+    gameName: string,
+    gameParams: GameParams,
+    gameDates: string,
 }

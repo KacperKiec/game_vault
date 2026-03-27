@@ -3,7 +3,8 @@ package io.kk.gameservice.util;
 public enum APICallEndpoint {
     GAMES("/games"),
     GAME("/game"),
-    GENRES("/genres"),;
+    GENRES("/genres"),
+    PLATFORMS("/platforms"),;
 
     public final String label;
 

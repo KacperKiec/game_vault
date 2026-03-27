@@ -6,7 +6,7 @@ import java.util.List;
 
 @Builder
 public record GameListResponseDTO(
-        List<GameResponseDTO> wishlist,
-        List<GameResponseDTO> gamesToPlay,
-        List<GameResponseDTO> completedGames
+        List<GameDetailsDTO> wishlist,
+        List<GameDetailsDTO> gamesToPlay,
+        List<GameDetailsDTO> completedGames
 ) { }
