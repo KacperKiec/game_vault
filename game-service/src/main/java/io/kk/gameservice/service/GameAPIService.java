@@ -1,9 +1,6 @@
 package io.kk.gameservice.service;
 
-import io.kk.gameservice.dto.GameDTO;
-import io.kk.gameservice.dto.GameDetailsDTO;
-import io.kk.gameservice.dto.GameParamsDTO;
-import io.kk.gameservice.dto.ParamDTO;
+import io.kk.gameservice.dto.*;
 import io.kk.gameservice.exception.GameApiException;
 import io.kk.gameservice.exception.GameNotFoundException;
 import io.kk.gameservice.model.ListType;
@@ -47,7 +44,7 @@ public class GameAPIService {
         return URI.create(uri);
     }
 
-    public GameDetailsDTO getGame(Long guid) {
+    public GameDetailsDTO getGame(Long guid, Long userId) {
         APICallParams params = new APICallParams();
 
         URI requestURI = createURI(
@@ -82,6 +79,15 @@ public class GameAPIService {
                 String date = rootNode.path("released").asText();
                 Date releaseDate = Objects.equals(date, "null") ? null : formatter.parse(date);
 
+                ListType type  = ListType.NONE;
+                if (userId != null) {
+                    var gameList = gameListRepository.findByUserIdAndGameId(userId, guid);
+                    if  (gameList.isEmpty())
+                        type = ListType.NONE;
+                    else
+                        type = gameList.get().getListType();
+                }
+
                 return GameDetailsDTO.builder()
                         .guid(guid)
                         .name(String.valueOf(rootNode.path("name")))
@@ -90,6 +96,8 @@ public class GameAPIService {
                         .backgroundImage(rootNode.path("background_image").asText())
                         .releaseDate(releaseDate)
                         .description(rootNode.path("description").asText())
+                        .listType(type)
+                        .website(rootNode.path("website").asText())
                         .build();
             }
         } catch (IOException | InterruptedException | ParseException e) {
@@ -99,7 +107,7 @@ public class GameAPIService {
         throw new GameNotFoundException("Game not found");
     }
 
-    public List<GameDTO> getGames(Integer pageNumber, String nameSearch, Long userId, List<String> gameGenres, List<String> gamePlatforms, String dateRange) {
+    public GameResponseDTO getGames(Integer pageNumber, String nameSearch, Long userId, List<String> gameGenres, List<String> gamePlatforms, String dateRange) {
         APICallParams params = new APICallParams();
         params.addParam("page_size", String.valueOf(pageSize));
 
@@ -141,11 +149,17 @@ public class GameAPIService {
                     .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() == 200) {
-                JsonNode rootNode = objectMapper.readTree(response.body()).path("results");
+
+                JsonNode root = objectMapper.readTree(response.body());
+                int count = root.path("count").asInt();
+
+                int totalPages = (int) Math.ceil((double) count / pageSize);
+
+                JsonNode results = root.path("results");
 
                 List<GameDTO> games = new ArrayList<>();
 
-                for (JsonNode elemNode : rootNode) {
+                for (JsonNode elemNode : results) {
                     GameDTO.GameDTOBuilder game = GameDTO.builder();
 
                     Long guid = elemNode.path("id").asLong();
@@ -183,7 +197,11 @@ public class GameAPIService {
                     games.add(game.build());
                 }
 
-                return games;
+                return GameResponseDTO.builder()
+                        .games(games)
+                        .totalPages(totalPages)
+                        .build();
+
             }
         } catch (IOException | InterruptedException | ParseException e) {
             throw new RuntimeException(e);

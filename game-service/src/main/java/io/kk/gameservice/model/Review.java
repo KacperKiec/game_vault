@@ -1,0 +1,36 @@
+package io.kk.gameservice.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import lombok.Data;
+
+import java.time.LocalDate;
+
+@Data
+@Entity
+@Table(name = "reviews")
+public class Review {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "review_id", unique = true, nullable = false)
+    private Long id;
+
+    @Column(name = "game_id", nullable = false)
+    private Long guid;
+
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    @Column(name = "content")
+    private String content;
+
+    @Column(name = "rating")
+    @Min(value = 1)
+    @Max(value = 5)
+    private Integer rating;
+
+    @Column(name = "date", nullable = false)
+    private LocalDate date;
+
+}

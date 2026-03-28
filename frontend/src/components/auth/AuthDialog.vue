@@ -4,7 +4,7 @@ import Register from "@/components/auth/Register.vue";
 import Login from "@/components/auth/Login.vue";
 import { ref } from 'vue';
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'loginSuccess']);
 
 const close = () => {
   emit('close');
@@ -48,7 +48,7 @@ const showLogin = ref(true);
           ✕
         </button>
 
-        <Login v-if="showLogin" @close="$emit('close')"/>
+        <Login v-if="showLogin" @close="$emit('close')" @login-success="emit('loginSuccess');"/>
         <Register v-else @close="$emit('close')"/>
       </div>
     </Transition>

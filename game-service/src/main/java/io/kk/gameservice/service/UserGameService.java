@@ -27,7 +27,7 @@ public class UserGameService {
     public void modifyLists(GameListRequestDTO gameListRequestDTO, Long userId) {
         var userExists = internalServiceClient.checkIfUserExists(userId);
 
-        var game = gameAPIService.getGame(gameListRequestDTO.guid());
+        var game = gameAPIService.getGame(gameListRequestDTO.guid(), userId);
 
         if (!userExists) throw new UserNotFoundException("User not found");
 
@@ -53,7 +53,7 @@ public class UserGameService {
 
     List<GameDetailsDTO> gameListCreator(Long userId, ListType listType) {
         return gameListRepository.findByUserIdAndListType(userId, listType).stream()
-                .map((gameList) -> gameAPIService.getGame(gameList.getGameId()))
+                .map((gameList) -> gameAPIService.getGame(gameList.getGameId(), userId))
                 .toList();
     }
 

@@ -20,7 +20,7 @@ spring:
             - id: game-service
               uri: "${GAME_SERVICE_URL:http://localhost:8090}"
               predicates:
-                - Path=/api/**,/list/**
+                - Path=/api/**,/list/**,/review/**
 management:
   endpoints:
     web:

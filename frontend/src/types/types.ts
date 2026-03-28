@@ -42,6 +42,12 @@ export interface GameDetails {
     releaseDate: Date,
     listType: ListType,
     description: string,
+    website: string
+}
+
+export interface GameResponse {
+    games: Game[],
+    totalPages: number
 }
 
 export interface GameListResponse {
@@ -64,4 +70,23 @@ export interface GameAPIParams {
     gameName: string,
     gameParams: GameParams,
     gameDates: string,
+}
+
+export interface GameListRequest {
+    guid: number,
+    listType: ListType
+}
+
+export interface Review {
+    id: number,
+    username :string,
+    content: string,
+    rating: number,
+    date: Date,
+}
+
+export interface ReviewRequest {
+    guid: number,
+    content: string,
+    rating: number
 }

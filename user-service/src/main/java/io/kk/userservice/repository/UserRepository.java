@@ -13,5 +13,6 @@ public interface UserRepository {
     Optional<User> findByUsername(String username);
     Optional<User> findByEmail(String email);
     List<User> findByRole(Role role);
+    List<User> findAllByIdIn(List<Long> ids);
     void delete(User user);
 }

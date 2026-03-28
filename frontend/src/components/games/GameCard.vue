@@ -1,11 +1,18 @@
 <script setup lang="ts">
 
-  import {Game} from "@/types/types";
-  import {computed} from "vue";
+import {Game, GameListRequest, ListType} from "@/types/types";
+import {computed} from "vue";
+import {gameListService} from "@/service/game-list-service";
 
-  const props = defineProps<{
+const props = defineProps<{
     game: Game
   }>();
+
+  const emit = defineEmits(['setNewListItem']);
+
+  const setNewListItem = (game: Game) => {
+    emit('setNewListItem', game);
+  }
 
   const CATEGORIES = {
     PLAYSTATION: { label: 'PlayStation', icon: '🟦', color: 'bg-blue-600/20 text-blue-400' },
@@ -42,6 +49,16 @@
     return Array.from(uniqueCategories).map(key => CATEGORIES[key]);
   });
 
+  const handleAddingToList = async (guid: number, type: ListType) => {
+    props.game.listType = type;
+    const dto: GameListRequest = {
+      guid: guid,
+      listType: type,
+    }
+    const success = await gameListService.modifyLists(dto);
+    if (success) setNewListItem(props.game);
+  }
+
 </script>
 
 <template>
@@ -52,10 +69,10 @@
       <div class="absolute inset-0 bg-linear-to-t from-base-100/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
         <div class="dropdown dropdown-top">
           <label tabindex="0" class="btn btn-primary btn-sm">+ Add to List</label>
-          <ul tabindex="0" class="dropdown-content menu bg-base-300 rounded-box w-52 p-2 shadow-lg">
-            <li><a>⭐ Wishlist</a></li>
-            <li><a>🎯 To Play</a></li>
-            <li><a>✅ Played</a></li>
+          <ul tabindex="0" class="dropdown-content menu bg-base-300 rounded-box w-42 p-2 shadow-lg">
+            <li><a @click="handleAddingToList(game.guid, ListType.WISHLIST)">⭐ Wishlist <span v-if="game.listType === ListType.WISHLIST" class="badge badge-sm">✔️</span></a></li>
+            <li><a @click="handleAddingToList(game.guid, ListType.TODO)">🎯 To Play <span v-if="game.listType === ListType.TODO" class="badge badge-sm">✔️</span></a></li>
+            <li><a @click="handleAddingToList(game.guid, ListType.COMPLETED)">✅ Played <span v-if="game.listType === ListType.COMPLETED" class="badge badge-sm">✔️</span></a></li>
           </ul>
         </div>
       </div>
@@ -73,11 +90,17 @@
     </figure>
 
     <div class="card-body p-4">
-      <h3 class="card-title text-base line-clamp-1">{{ game.name }}</h3>
+      <div class="tooltip tooltip-bottom before:max-w-xs" :data-tip="game.name">
+        <router-link
+            :to="{ name: 'game-details', params: { id: game.guid } }"
+            class="card-title text-base line-clamp-1 hover:text-primary transition-colors cursor-pointer"
+        >
+          {{ game.name }}
+        </router-link>
+      </div>
 
       <div class="flex items-center gap-2 text-sm text-base-content/60">
         <span>{{ new Date(game.releaseDate).toLocaleDateString() }}</span>
-<!--        <span class="badge badge-accent badge-sm">{{ game.metacritic || 'N/A' }}</span>-->
       </div>
 
       <div class="flex flex-wrap gap-1 mt-2">

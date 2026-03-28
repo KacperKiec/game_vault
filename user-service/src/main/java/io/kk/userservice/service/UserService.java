@@ -3,6 +3,7 @@ package io.kk.userservice.service;
 import io.kk.userservice.dto.UserRegisterDTO;
 import io.kk.userservice.dto.UserResponseDTO;
 import io.kk.userservice.dto.UserUpdateRequestDTO;
+import io.kk.userservice.dto.UsernameDTO;
 import io.kk.userservice.exception.UserAlreadyExistException;
 import io.kk.userservice.exception.UserNotFoundException;
 import io.kk.userservice.model.Role;
@@ -67,6 +68,16 @@ public class UserService {
     public Boolean isUserExisting(Long userId) {
         var  existingUser = userRepository.findById(userId);
         return existingUser.isPresent();
+    }
+
+    public List<UsernameDTO> getUsernames(List<Long> ids) {
+        return userRepository.findAllByIdIn(ids).stream()
+                .map(u -> {
+                    return UsernameDTO.builder()
+                            .userId(u.getId())
+                            .username(u.getUsername())
+                            .build();
+                }).toList();
     }
 }
 

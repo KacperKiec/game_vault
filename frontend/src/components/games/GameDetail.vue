@@ -1,28 +1,64 @@
 <script setup lang="ts">
+  import { onMounted, ref } from 'vue';
+  import { gameService } from '@/service/game-service';
+  import {Game, GameDetails, GameListRequest, ListType} from '@/types/types';
+  import {gameListService} from "@/service/game-list-service";
+  import ReviewPanel from "@/components/ReviewPanel.vue";
+
+  const props = defineProps<{
+    id: string
+  }>();
+
+  const emit = defineEmits(['setNewListItem']);
+
+  const setNewListItem = (game: Game) => {
+    emit('setNewListItem', game);
+  }
+
+  const game = ref<GameDetails>({
+    guid: 0,
+    name: '',
+    genres: [],
+    platforms: [],
+    backgroundImage: '',
+    releaseDate: new Date(),
+    listType: ListType.NONE,
+    description: '',
+    website: ''
+  });
+
+  onMounted(async () => {
+    game.value = await gameService.getGameById(Number(props.id));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  const handleAddingToList = async (guid: number, type: ListType) => {
+    game.value.listType = type;
+    const dto: GameListRequest = {
+      guid: guid,
+      listType: type,
+    }
+    const success = await gameListService.modifyLists(dto);
+    if (success) setNewListItem(game.value);
+  }
 
 </script>
 
-<!-- GameDetail.vue -->
 <template>
   <div class="min-h-screen">
-    <!-- Hero Section with Background -->
-    <div class="relative h-96" :style="{ backgroundImage: `url(${game.background_image})` }">
-      <div class="absolute inset-0 bg-gradient-to-t from-base-100 via-base-100/60 to-transparent" />
+    <div class="relative h-96" :style="{ backgroundImage: `url(${game.backgroundImage})` }">
+      <div class="absolute inset-0 bg-linear-to-t from-base-100 via-base-100/60 to-transparent" />
 
       <div class="absolute bottom-0 left-0 right-0 p-8 flex gap-6">
-        <!-- Cover -->
-        <img :src="game.background_image" class="w-48 h-64 object-cover rounded-lg shadow-2xl" />
+        <img :src="game.backgroundImage" class="w-48 h-64 object-cover rounded-lg shadow-2xl" :alt="game.name"/>
 
         <div class="flex-1">
           <h1 class="text-4xl font-bold mb-2">{{ game.name }}</h1>
 
           <div class="flex items-center gap-4 mb-4">
-            <div class="badge badge-accent badge-lg">{{ game.metacritic }}</div>
-            <span class="text-base-content/60">{{ game.released }}</span>
-            <span>{{ game.playtime }}h avg playtime</span>
+            <span class="text-base-content/60">{{ new Date(game.releaseDate).toLocaleDateString() }}</span>
           </div>
 
-          <!-- Action Buttons -->
           <div class="flex gap-2">
             <div class="dropdown">
               <label tabindex="0" class="btn btn-primary">
@@ -32,72 +68,46 @@
                 Add to List
               </label>
               <ul tabindex="0" class="dropdown-content menu bg-base-300 rounded-box w-52 p-2 shadow-lg mt-2">
-                <li><a>⭐ Wishlist</a></li>
-                <li><a>🎯 To Play</a></li>
-                <li><a>✅ Played</a></li>
+                <li><a @click="handleAddingToList(game.guid, ListType.WISHLIST)">⭐ Wishlist <span v-if="game.listType === ListType.WISHLIST" class="badge badge-sm">✔️</span></a></li>
+                <li><a @click="handleAddingToList(game.guid, ListType.TODO)">🎯 To Play <span v-if="game.listType === ListType.TODO" class="badge badge-sm">✔️</span></a></li>
+                <li><a @click="handleAddingToList(game.guid, ListType.COMPLETED)">✅ Played <span v-if="game.listType === ListType.COMPLETED" class="badge badge-sm">✔️</span></a></li>
               </ul>
             </div>
-            <button class="btn btn-outline">Visit Website</button>
+            <button class="btn btn-outline"><a target="blank" :href="game.website">Visit Website</a></button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Content -->
     <div class="container mx-auto p-8 grid grid-cols-3 gap-8">
-      <!-- Main Info -->
       <div class="col-span-2 space-y-6">
         <div class="prose prose-invert max-w-none">
-          <h2>About</h2>
+          <h1>About</h1>
+          <br/>
           <p v-html="game.description"></p>
         </div>
 
-        <!-- Screenshots Gallery -->
-        <div>
-          <h2 class="text-xl font-bold mb-4">Screenshots</h2>
-          <div class="grid grid-cols-2 gap-4">
-            <img v-for="screenshot in game.screenshots"
-                 :src="screenshot.image"
-                 class="rounded-lg hover:scale-105 transition-transform cursor-pointer" />
-          </div>
-        </div>
       </div>
 
-      <!-- Sidebar Info -->
       <div class="space-y-4">
         <div class="bg-base-200 rounded-lg p-4">
           <h3 class="font-bold mb-3">Game Info</h3>
           <dl class="space-y-2 text-sm">
-            <div class="flex justify-between">
-              <dt class="text-base-content/60">Platforms</dt>
-              <dd>{{ game.platforms?.map(p => p.platform.name).join(', ') }}</dd>
+            <div class="flex">
+              <dt class="text-base-content/60 mr-1 w-15">Platforms</dt>
+              <dd>{{ game.platforms?.map(p => p).join(', ') }}</dd>
             </div>
-            <div class="flex justify-between">
-              <dt class="text-base-content/60">Genres</dt>
-              <dd>{{ game.genres?.map(g => g.name).join(', ') }}</dd>
-            </div>
-            <div class="flex justify-between">
-              <dt class="text-base-content/60">Developer</dt>
-              <dd>{{ game.developers?.[0]?.name }}</dd>
-            </div>
-            <div class="flex justify-between">
-              <dt class="text-base-content/60">Publisher</dt>
-              <dd>{{ game.publishers?.[0]?.name }}</dd>
+            <div class="flex">
+              <dt class="text-base-content/60 mr-1 w-15">Genres</dt>
+              <dd>{{ game.genres?.map(g => g).join(', ') }}</dd>
             </div>
           </dl>
         </div>
 
-        <!-- Stores -->
-        <div class="bg-base-200 rounded-lg p-4">
-          <h3 class="font-bold mb-3">Where to Buy</h3>
-          <div class="flex flex-wrap gap-2">
-            <a v-for="store in game.stores" class="btn btn-sm btn-ghost">
-              {{ store.store.name }}
-            </a>
-          </div>
-        </div>
       </div>
     </div>
+
+    <ReviewPanel :guid="Number.parseInt(id)"/>
   </div>
 </template>
 

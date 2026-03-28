@@ -15,6 +15,7 @@ public record GameDetailsDTO(
     String backgroundImage,
     Date releaseDate,
     ListType listType,
-    String description
+    String description,
+    String website
 ) {
 }

@@ -5,7 +5,7 @@ import { authService} from "@/service/auth-service";
 import { AuthRequest } from "@/types/types";
 import {useRouter} from "vue-router";
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'loginSuccess']);
 const router = useRouter();
 
 const username = ref('');
@@ -27,6 +27,7 @@ const handleLogin = async () => {
       const success = await authService.login(dto);
 
       if (success) {
+        emit('loginSuccess');
         emit('close');
         await router.push('/');
       }

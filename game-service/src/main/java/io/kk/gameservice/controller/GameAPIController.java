@@ -1,8 +1,8 @@
 package io.kk.gameservice.controller;
 
-import io.kk.gameservice.dto.GameDTO;
 import io.kk.gameservice.dto.GameDetailsDTO;
 import io.kk.gameservice.dto.GameParamsDTO;
+import io.kk.gameservice.dto.GameResponseDTO;
 import io.kk.gameservice.service.GameAPIService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,7 +19,7 @@ public class GameAPIController {
     private final GameAPIService gameAPIService;
 
     @GetMapping("/games")
-    public List<GameDTO> getGames(
+    public GameResponseDTO getGames(
             @RequestParam(name = "page_number", defaultValue = "0") Integer pageNumber,
             @RequestParam(name = "name_search", required = false) String nameSearch,
             @RequestParam(name = "game_genres", required = false) List<String> gameGenres,
@@ -33,8 +33,9 @@ public class GameAPIController {
     }
 
     @GetMapping("/game/{guid}")
-    public GameDetailsDTO getGame(@PathVariable Long guid) {
-        return gameAPIService.getGame(guid);
+    public GameDetailsDTO getGame(@PathVariable Long guid, @AuthenticationPrincipal Jwt jwt) {
+        Long userId = jwt != null ? Long.parseLong(jwt.getSubject()) : null;
+        return gameAPIService.getGame(guid, userId);
     }
 
     @GetMapping("/params")
