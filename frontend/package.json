@@ -9,14 +9,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@stomp/stompjs": "^7.3.0",
     "@vueform/slider": "^2.1.10",
     "axios": "^1.13.6",
     "pinia": "^3.0.4",
+    "sockjs-client": "^1.6.1",
     "vue": "^3.5.29",
     "vue-router": "^5.0.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.1",
+    "@types/sockjs-client": "^1.5.4",
     "@vitejs/plugin-vue": "^6.0.4",
     "autoprefixer": "^10.4.27",
     "daisyui": "^5.5.19",

@@ -25,6 +25,32 @@ services:
     ports:
       - "5433:5432"
 
+  notification-db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: notif
+      POSTGRES_PASSWORD: notif
+      POSTGRES_DB: notification_db
+    volumes:
+      - notification_data:/var/lib/postgresql/data
+    networks:
+      - net
+    ports:
+      - "5434:5432"
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: amqp-service
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: dev
+      RABBITMQ_DEFAULT_PASS: dev
+    networks:
+      - net
+
+
 networks:
   net:
     driver: bridge
@@ -32,3 +58,4 @@ networks:
 volumes:
   user_data:
   game_data:
+  notification_data:

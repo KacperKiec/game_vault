@@ -29,12 +29,14 @@ export const gameService = {
 
             const genres = gameApiParams.gameParams.genres;
             if (genres && genres.length > 0) {
-                queryParams.append('game_genres', genres.join(','));
+                const genreIds = genres.map(g => g.id).join(',');
+                queryParams.append('game_genres', genreIds);
             }
 
             const platforms = gameApiParams.gameParams.platforms;
             if (platforms && platforms.length > 0) {
-                queryParams.append('game_platforms', platforms.join(','));
+                const platformIds = platforms.map(p => p.id).join(',');
+                queryParams.append('game_platforms', platformIds);
             }
 
             const headers: Record<string, string> = {

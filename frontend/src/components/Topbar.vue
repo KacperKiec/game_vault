@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/store/auth';
 import { storeToRefs } from 'pinia';
+import NotificationPanel from "@/components/NotificationPanel.vue";
 
 const authStore = useAuthStore();
 const { isAuthenticated, username } = storeToRefs(authStore);
@@ -29,18 +30,21 @@ const openAuthDialog = () => {
         </button>
       </div>
 
-      <div v-else class="dropdown dropdown-end">
-        <div tabindex="0" role="button" class="btn btn-ghost btn-sm rounded-md border border-base-300">
-          <div class="avatar placeholder mr-2">
-            <div class="bg-neutral text-neutral-content rounded-full w-6">
-              <span class="text-xs flex justify-center mt-1">{{ username?.charAt(0).toUpperCase() }}</span>
+      <div v-else>
+        <NotificationPanel/>
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-ghost btn-sm rounded-md border border-base-300">
+            <div class="avatar placeholder mr-2">
+              <div class="bg-neutral text-neutral-content rounded-full w-6">
+                <span class="text-xs flex justify-center mt-1">{{ username?.charAt(0).toUpperCase() }}</span>
+              </div>
             </div>
+            {{ username }}
           </div>
-          {{ username }}
+          <ul tabindex="0" class="mt-3 z-1 p-2 shadow menu menu-sm dropdown-content bg-base-300 rounded-box w-52">
+            <li><a @click="authStore.logout()" class="text-error">Logout</a></li>
+          </ul>
         </div>
-        <ul tabindex="0" class="mt-3 z-1 p-2 shadow menu menu-sm dropdown-content bg-base-300 rounded-box w-52">
-          <li><a @click="authStore.logout()" class="text-error">Logout</a></li>
-        </ul>
       </div>
     </div>
   </div>

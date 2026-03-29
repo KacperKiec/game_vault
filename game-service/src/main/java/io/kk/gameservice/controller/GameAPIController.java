@@ -22,8 +22,8 @@ public class GameAPIController {
     public GameResponseDTO getGames(
             @RequestParam(name = "page_number", defaultValue = "0") Integer pageNumber,
             @RequestParam(name = "name_search", required = false) String nameSearch,
-            @RequestParam(name = "game_genres", required = false) List<String> gameGenres,
-            @RequestParam(name = "game_platforms", required = false) List<String> gamePlatforms,
+            @RequestParam(name = "game_genres", required = false) List<Long> gameGenres,
+            @RequestParam(name = "game_platforms", required = false) List<Long> gamePlatforms,
             @RequestParam(name = "dates", required = false) String dates,
             @AuthenticationPrincipal Jwt jwt
     ) {

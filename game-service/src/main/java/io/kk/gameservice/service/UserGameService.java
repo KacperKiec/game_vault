@@ -5,6 +5,7 @@ import io.kk.gameservice.dto.GameListRequestDTO;
 import io.kk.gameservice.dto.GameListResponseDTO;
 import io.kk.gameservice.exception.GameNotFoundException;
 import io.kk.gameservice.exception.UserNotFoundException;
+import io.kk.gameservice.integration.InternalServiceClient;
 import io.kk.gameservice.model.GameList;
 import io.kk.gameservice.model.ListType;
 import io.kk.gameservice.repository.GameListRepository;

@@ -87,7 +87,7 @@
             <label v-for="platform in params.platforms" :key="platform.slug"
                    class="label cursor-pointer hover:bg-base-100 rounded-lg px-2 transition-colors flex justify-between">
               <span class="label-text text-sm">{{ platform.name }}</span>
-              <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" :value="platform.slug" v-model="selectedParams.platforms" @change="setGameParams"/>
+              <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" :value="platform" v-model="selectedParams.platforms" @change="setGameParams"/>
             </label>
           </div>
         </div>
@@ -104,7 +104,7 @@
             <label v-for="genre in params.genres" :key="genre.slug"
                    class="label cursor-pointer hover:bg-base-100 rounded-lg px-2 transition-colors flex justify-between">
               <span class="label-text text-sm">{{ genre.name }}</span>
-              <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" :value="genre.slug" v-model="selectedParams.genres" @change="setGameParams"/>
+              <input type="checkbox" class="checkbox checkbox-primary checkbox-sm" :value="genre" v-model="selectedParams.genres" @change="setGameParams"/>
             </label>
           </div>
         </div>

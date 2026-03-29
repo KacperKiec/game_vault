@@ -17,7 +17,7 @@ import {Review, ReviewRequest} from "@/types/types";
   const newReview = ref<ReviewRequest>({
     guid: props.guid,
     content: '',
-    rating: 0
+    rating: 5
   });
 
   const handleRemove = async () => {
@@ -26,6 +26,8 @@ import {Review, ReviewRequest} from "@/types/types";
     if (success) {
       reviews.value = reviews.value.filter(r => r.username !== username.value);
       userReview.value = null;
+      newReview.value.content = '';
+      newReview.value.rating = 5;
     }
   };
 

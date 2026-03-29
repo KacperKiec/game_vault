@@ -12,6 +12,12 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: dev
+    password: dev
+    virtual-host: /
 server:
   port: 8090
 
@@ -21,3 +27,7 @@ app:
   rawgio-api:
     key: ${RAWGIO_API_KEY}
     uri: https://api.rawg.io/api
+  rabbit:
+    queue: "notification-queue"
+    exchange: "notification-exchange"
+    routing-key: "add.notification"

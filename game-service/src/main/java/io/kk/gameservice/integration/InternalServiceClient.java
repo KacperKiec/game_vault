@@ -1,4 +1,4 @@
-package io.kk.gameservice.service;
+package io.kk.gameservice.integration;
 
 import io.kk.gameservice.dto.UserDTO;
 import lombok.RequiredArgsConstructor;

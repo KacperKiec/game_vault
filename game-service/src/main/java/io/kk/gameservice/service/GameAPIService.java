@@ -23,6 +23,7 @@ import java.net.http.HttpResponse;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -107,7 +108,7 @@ public class GameAPIService {
         throw new GameNotFoundException("Game not found");
     }
 
-    public GameResponseDTO getGames(Integer pageNumber, String nameSearch, Long userId, List<String> gameGenres, List<String> gamePlatforms, String dateRange) {
+    public GameResponseDTO getGames(Integer pageNumber, String nameSearch, Long userId, List<Long> gameGenres, List<Long> gamePlatforms, String dateRange) {
         APICallParams params = new APICallParams();
         params.addParam("page_size", String.valueOf(pageSize));
 
@@ -120,16 +121,18 @@ public class GameAPIService {
         }
 
         if (gameGenres != null && !gameGenres.isEmpty()) {
-            String genresParam = String.join(",", gameGenres.stream()
-                    .map(s -> s.toLowerCase().replace(" ", "-"))
-                    .toList());
+            String genresParam = gameGenres.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(","));
+
             params.addParam("genres", genresParam);
         }
 
         if (gamePlatforms != null && !gamePlatforms.isEmpty()) {
-            String platformsParam = String.join(",", gamePlatforms.stream()
-                    .map(s -> s.toLowerCase().replace(" ", "-"))
-                    .toList());
+            String platformsParam = gamePlatforms.stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.joining(","));
+
             params.addParam("platforms", platformsParam);
         }
 
@@ -244,6 +247,7 @@ public class GameAPIService {
                 List<ParamDTO> dtos = new ArrayList<>();
                 for (JsonNode node : resultsNode) {
                     var dto = ParamDTO.builder()
+                            .id(node.get("id").asLong())
                             .name(node.get("name").asText())
                             .slug(node.get("slug").asText())
                             .build();

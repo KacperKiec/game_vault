@@ -21,6 +21,12 @@ spring:
               uri: "${GAME_SERVICE_URL:http://localhost:8090}"
               predicates:
                 - Path=/api/**,/list/**,/review/**
+            - id: notification-service
+              uri: "${NOTIFICATION_SERVICE_URL:http://localhost:8070}"
+              predicates:
+                - Path=/notification/**,/ws/notifications/**
+              metadata:
+                websocket: true
 management:
   endpoints:
     web:

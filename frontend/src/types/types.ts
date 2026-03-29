@@ -57,6 +57,7 @@ export interface GameListResponse {
 }
 
 export interface Param {
+    id: number,
     name: string,
     slug: string
 }
@@ -89,4 +90,18 @@ export interface ReviewRequest {
     guid: number,
     content: string,
     rating: number
+}
+
+export enum NotificationType {
+    NEW_REVIEW = "NEW_REVIEW"
+}
+
+export interface AppNotification {
+    id: number;
+    type: NotificationType;
+    title: string;
+    content: string;
+    metadata: Record<string, any>;
+    createdAt: Date;
+    read: boolean;
 }

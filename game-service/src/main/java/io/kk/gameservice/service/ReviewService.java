@@ -3,20 +3,30 @@ package io.kk.gameservice.service;
 import io.kk.gameservice.dto.ReviewRequestDTO;
 import io.kk.gameservice.dto.ReviewResponseDTO;
 import io.kk.gameservice.exception.ReviewNotFoundException;
+import io.kk.gameservice.integration.InternalServiceClient;
+import io.kk.gameservice.integration.RabbitService;
+import io.kk.gameservice.model.GameList;
 import io.kk.gameservice.model.Review;
+import io.kk.gameservice.repository.GameListRepository;
 import io.kk.gameservice.repository.ReviewRepository;
+import io.kk.gameservice.util.NotificationCreator;
+import io.kk.gameservice.util.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
+    private final GameListRepository gameListRepository;
     private final InternalServiceClient internalServiceClient;
+    private final RabbitService  rabbitService;
 
     public ReviewResponseDTO addReview(ReviewRequestDTO dto, Long userId) {
         var existingReview = reviewRepository.findByGuidAndUserId(dto.guid(), userId);
@@ -39,6 +49,21 @@ public class ReviewService {
         }
 
         var saved = reviewRepository.save(review);
+
+        var userIds = gameListRepository.findByGameId(dto.guid()).stream().map(GameList::getUserId).toList();
+
+        String title = "New review";
+        String content = "Someone added new review to the game you're interested in.";
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("guid", dto.guid());
+
+        for (var u : userIds) {
+            if (!userId.equals(u)) {
+                var notificationRequestDTO = NotificationCreator.createNotification(NotificationType.NEW_REVIEW, u, title, content, metadata);
+                rabbitService.sendNotification(notificationRequestDTO);
+            }
+        }
+
         var user = internalServiceClient.getUsernames(List.of(userId)).getFirst();
 
         return ReviewResponseDTO.builder()
@@ -77,4 +102,5 @@ public class ReviewService {
 
         reviewRepository.deleteById(reviewId);
     }
+
 }
