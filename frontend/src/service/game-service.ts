@@ -5,6 +5,15 @@ import {useUiStore} from "@/store/ui";
 const API_URL = 'http://localhost:9000/api';
 
 export const gameService = {
+    /**
+     * Fetches a paginated list of games from the API based on search criteria and filters.
+     * Construct query parameters for name, release dates, genres, and platforms.
+     * * @param {number} [page=1] - The page number to retrieve.
+     * @param {number} page - Page number in query
+     * @param {GameAPIParams} gameApiParams - Filtering parameters including search name, date range, and selected genres/platforms.
+     * @returns {Promise<GameResponse>} - A promise that resolves to an object containing the list of games and pagination metadata.
+     * @throws {Error} - Throws an error if the server responds with a non-OK status.
+     */
     async getGames(page: number = 1, gameApiParams: GameAPIParams): Promise<GameResponse> {
         const uiStore = useUiStore();
         uiStore.setLoading(true);
@@ -62,6 +71,12 @@ export const gameService = {
         }
     },
 
+    /**
+     * Retrieves the available filtering parameters (genres and platforms) from the backend.
+     * This is typically used to populate the sidebar or filter selection UI.
+     * * @returns {Promise<GameParams>} - A promise that resolves to an object containing arrays of available genres and platforms.
+     * @throws {Error} - Throws an error if the parameters could not be fetched.
+     */
     async getGameParams(): Promise<GameParams> {
         const uiStore = useUiStore();
         uiStore.setLoading(true);
@@ -84,6 +99,12 @@ export const gameService = {
         }
     },
 
+    /**
+     * Fetches detailed information for a single game identified by its GUID.
+     * * @param {number} guid - The unique identifier of the game.
+     * @returns {Promise<GameDetails>} - A promise that resolves to the full details of the specific game.
+     * @throws {Error} - Throws an error if the game is not found or the request fails.
+     */
     async getGameById(guid: number): Promise<GameDetails> {
         const uiStore = useUiStore();
         uiStore.setLoading(true);

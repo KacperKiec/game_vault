@@ -1,10 +1,15 @@
 <script setup lang="ts">
 
-import {Game, GameListRequest, ListType} from "@/types/types";
-import {computed} from "vue";
-import {gameListService} from "@/service/game-list-service";
+  import {Game, GameListRequest, ListType} from "@/types/types";
+  import {computed} from "vue";
+  import {gameListService} from "@/service/game-list-service";
+  import {useAuthStore} from "@/store/auth";
+  import {storeToRefs} from "pinia";
 
-const props = defineProps<{
+
+  const authStore = useAuthStore();
+  const { isAuthenticated } = storeToRefs(authStore);
+  const props = defineProps<{
     game: Game
   }>();
 
@@ -66,7 +71,7 @@ const props = defineProps<{
     <figure class="relative overflow-visible">
       <img :src="game.backgroundImage" :alt="game.name" class="h-48 w-full object-cover" />
 
-      <div class="absolute inset-0 bg-linear-to-t from-base-100/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+      <div v-if="isAuthenticated" class="absolute inset-0 bg-linear-to-t from-base-100/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
         <div class="dropdown dropdown-top">
           <label tabindex="0" class="btn btn-primary btn-sm">+ Add to List</label>
           <ul tabindex="0" class="dropdown-content menu bg-base-300 rounded-box w-42 p-2 shadow-lg">

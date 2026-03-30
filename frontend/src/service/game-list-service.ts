@@ -5,6 +5,12 @@ import {useUiStore} from "@/store/ui";
 const API_URL = 'http://localhost:9000/list';
 
 export const gameListService = {
+    /**
+     * Fetches all game lists associated with the currently authenticated user.
+     * This includes categories like wishlist, games to play, and completed games.
+     * * @returns {Promise<GameListResponse>} - A promise that resolves to an object containing categorized game lists.
+     * @throws {Error} - Throws an error if the request fails or if the user is unauthorized.
+     */
     async getUserLists(): Promise<GameListResponse> {
         const uiStore = useUiStore();
         uiStore.setLoading(true);
@@ -31,6 +37,13 @@ export const gameListService = {
         }
     },
 
+    /**
+     * Modifies the user's game lists by adding, moving, or removing a game.
+     * The specific action is determined by the listType provided in the DTO.
+     * * @param {GameListRequest} dto - Data transfer object containing the game GUID and the target list type.
+     * @returns {Promise<boolean>} - Returns true if the operation was successful.
+     * @throws {Error} - Throws an error if the modification fails on the server side.
+     */
     async modifyLists(dto: GameListRequest): Promise<boolean> {
         const uiStore = useUiStore();
         uiStore.setLoading(true);

@@ -6,7 +6,9 @@
   import {gameService} from "@/service/game-service";
   import Slider from '@vueform/slider';
   import '@vueform/slider/themes/default.css';
+  import {useRouter} from "vue-router";
 
+  const router = useRouter();
   defineProps<{
     wishlistSize: number,
     toPlaySize: number,
@@ -17,18 +19,22 @@
 
   const setGameList = (listType: ListType) => {
     activeList.value = listType;
+    router.push("/")
     emit('setGameList', listType);
   };
 
   const setGameName = () => {
+    router.push("/")
     emit('setGameName', gameName.value);
   }
 
   const setGameParams = () => {
+    router.push("/")
     emit('setGameParams', selectedParams.value);
   }
 
   const setDates = (dates: string) => {
+    router.push("/")
     emit('setDates', dates);
   }
 

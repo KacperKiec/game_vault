@@ -19,6 +19,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Service responsible for managing game reviews.
+ * It handles adding, retrieving, and deleting reviews, as well as triggering
+ * notifications via RabbitMQ when new reviews are posted.
+ */
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
@@ -26,15 +31,23 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final GameListRepository gameListRepository;
     private final InternalServiceClient internalServiceClient;
-    private final RabbitService  rabbitService;
+    private final RabbitService rabbitService;
 
+    /**
+     * Adds a new review or updates an existing one for a specific game and user.
+     * After saving, it notifies other users who have the same game in their lists
+     * via an asynchronous message queue.
+     *
+     * @param dto    The review data including game GUID, content, and rating.
+     * @param userId The ID of the user performing the action.
+     * @return A {@link ReviewResponseDTO} containing the saved review details and the reviewer's username.
+     */
     public ReviewResponseDTO addReview(ReviewRequestDTO dto, Long userId) {
         var existingReview = reviewRepository.findByGuidAndUserId(dto.guid(), userId);
 
         Review review;
         if (existingReview.isPresent()) {
             review = existingReview.get();
-
             review.setContent(dto.content());
             review.setRating(dto.rating());
             review.setUserId(userId);
@@ -50,7 +63,9 @@ public class ReviewService {
 
         var saved = reviewRepository.save(review);
 
-        var userIds = gameListRepository.findByGameId(dto.guid()).stream().map(GameList::getUserId).toList();
+        var userIds = gameListRepository.findByGameId(dto.guid()).stream()
+                .map(GameList::getUserId)
+                .toList();
 
         String title = "New review";
         String content = "Someone added new review to the game you're interested in.";
@@ -59,7 +74,8 @@ public class ReviewService {
 
         for (var u : userIds) {
             if (!userId.equals(u)) {
-                var notificationRequestDTO = NotificationCreator.createNotification(NotificationType.NEW_REVIEW, u, title, content, metadata);
+                var notificationRequestDTO = NotificationCreator.createNotification(
+                        NotificationType.NEW_REVIEW, u, title, content, metadata);
                 rabbitService.sendNotification(notificationRequestDTO);
             }
         }
@@ -75,22 +91,42 @@ public class ReviewService {
                 .build();
     }
 
+    /**
+     * Retrieves all reviews for a specific game.
+     * Usernames are fetched in bulk from the internal user service to avoid the N+1 problem.
+     *
+     * @param gameId The unique identifier of the game.
+     * @return A list of {@link ReviewResponseDTO} objects representing the game's reviews.
+     */
     public List<ReviewResponseDTO> getReviews(Long gameId) {
-         var reviews =  reviewRepository.findByGuid(gameId);
-         var users = internalServiceClient.getUsernames(reviews.stream().map(Review::getUserId).toList());
+        var reviews = reviewRepository.findByGuid(gameId);
+        var users = internalServiceClient.getUsernames(reviews.stream()
+                .map(Review::getUserId)
+                .toList());
 
-
-
-         return reviews.stream()
-                 .map(r -> ReviewResponseDTO.builder()
-                         .id(r.getId())
-                         .username(users.stream().filter(u -> u.userId().equals(r.getUserId())).findFirst().get().username())
-                         .content(r.getContent())
-                         .rating(r.getRating())
-                         .date(r.getDate())
-                         .build()).toList();
+        return reviews.stream()
+                .map(r -> ReviewResponseDTO.builder()
+                        .id(r.getId())
+                        .username(users.stream()
+                                .filter(u -> u.userId().equals(r.getUserId()))
+                                .findFirst()
+                                .get()
+                                .username())
+                        .content(r.getContent())
+                        .rating(r.getRating())
+                        .date(r.getDate())
+                        .build())
+                .toList();
     }
 
+    /**
+     * Deletes a specific review.
+     * Validates that the review exists and belongs to the requesting user before deletion.
+     *
+     * @param reviewId The ID of the review to delete.
+     * @param userId   The ID of the user requesting deletion.
+     * @throws ReviewNotFoundException if the review does not exist or does not belong to the user.
+     */
     public void deleteReview(Long reviewId, Long userId) {
         var review = reviewRepository.findById(reviewId).orElseThrow(
                 () -> new ReviewNotFoundException("Review not found")
@@ -102,5 +138,4 @@ public class ReviewService {
 
         reviewRepository.deleteById(reviewId);
     }
-
 }

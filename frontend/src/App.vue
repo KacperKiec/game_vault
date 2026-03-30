@@ -17,7 +17,7 @@
   const isAuthOpen = ref(false);
   const displayedGames = ref<Game[]>([]);
   const gameApiParams = ref<GameAPIParams>({ gameName: '', gameParams: { genres: [], platforms: [] }, gameDates: '' })
-  const activeList = ref('');
+  const activeList = ref(ListType.NONE);
   const pageNumber = ref(1);
   const totalPages = ref(0);
   const pageSize = 20;
@@ -25,26 +25,25 @@
 
   const handleGameList = (listType: ListType) => {
     activeList.value = listType;
-    switch (listType) {
-      case ListType.WISHLIST: displayedGames.value = lists.value.wishlist; totalPages.value = Math.ceil(lists.value.wishlist.length / pageSize); break;
-      case ListType.TODO: displayedGames.value = lists.value.gamesToPlay; totalPages.value = Math.ceil(lists.value.gamesToPlay.length / pageSize); break;
-      case ListType.COMPLETED: displayedGames.value = lists.value.completedGames; totalPages.value = Math.ceil(lists.value.completedGames.length / pageSize); break;
-      default: prepareGames(); break;
-    }
+    pageNumber.value = 1;
+    prepareGames();
   };
 
   const handleGameName = (name: string) => {
     gameApiParams.value.gameName = name;
+    pageNumber.value = 1;
     prepareGames();
   }
 
   const handleGameParams = (params: GameParams) => {
     gameApiParams.value.gameParams = params;
+    pageNumber.value = 1;
     prepareGames();
   }
 
   const handleGameDates = (dates: string) => {
     gameApiParams.value.gameDates = dates;
+    pageNumber.value = 1;
     prepareGames();
   }
 
@@ -92,15 +91,56 @@
     await fetchUserLists();
   });
 
+  const filterLocalGames = (games: Game[]) => {
+    return games.filter(game => {
+      const cleanGameName = game.name.replace(/"/g, '').toLowerCase();
+      const searchName = gameApiParams.value.gameName.toLowerCase();
+
+      const matchesName = !searchName || cleanGameName.includes(searchName);
+
+      const genreMatch = gameApiParams.value.gameParams.genres.length === 0 ||
+          game.genres.some(g => gameApiParams.value.gameParams.genres.some(sg => sg.name === g));
+
+      const platformMatch = gameApiParams.value.gameParams.platforms.length === 0 ||
+          game.platforms.some(p => gameApiParams.value.gameParams.platforms.some(sp => sp.name === p));
+
+      let dateMatch = true;
+      if (gameApiParams.value.gameDates && game.releaseDate) {
+        const [start, end] = gameApiParams.value.gameDates.split(',').map(d => new Date(d).getFullYear());
+        const gameYear = new Date(game.releaseDate).getFullYear();
+        dateMatch = gameYear >= start && gameYear <= end;
+      }
+
+      return matchesName && genreMatch && platformMatch && dateMatch;
+    });
+  };
+
   const prepareGames = async () => {
-    try {
-      const result = await gameService.getGames(pageNumber.value, gameApiParams.value);
-      displayedGames.value = result.games;
-      totalPages.value = result.totalPages;
-    } catch (err) {
-      console.error("Failed to fetch games:", err);
+
+    if (activeList.value === ListType.NONE) {
+      try {
+        const result = await gameService.getGames(pageNumber.value, gameApiParams.value);
+        displayedGames.value = result.games;
+        totalPages.value = result.totalPages;
+      } catch (err) {
+        console.error("Failed to fetch games:", err);
+      }
+    } else {
+      let sourceList: Game[] = [];
+
+      switch (activeList.value) {
+        case ListType.WISHLIST: sourceList = lists.value.wishlist; break;
+        case ListType.TODO: sourceList = lists.value.gamesToPlay; break;
+        case ListType.COMPLETED: sourceList = lists.value.completedGames; break;
+      }
+
+      const filtered = filterLocalGames(sourceList);
+
+      totalPages.value = Math.ceil(filtered.length / pageSize);
+      const start = (pageNumber.value - 1) * pageSize;
+      displayedGames.value = filtered.slice(start, start + pageSize);
     }
-  }
+  };
 </script>
 
 <template>

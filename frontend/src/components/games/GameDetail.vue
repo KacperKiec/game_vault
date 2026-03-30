@@ -4,7 +4,11 @@
   import {Game, GameDetails, GameListRequest, ListType} from '@/types/types';
   import {gameListService} from "@/service/game-list-service";
   import ReviewPanel from "@/components/ReviewPanel.vue";
+  import {useAuthStore} from "@/store/auth";
+  import {storeToRefs} from "pinia";
 
+  const authStore = useAuthStore();
+  const { isAuthenticated } = storeToRefs(authStore);
   const props = defineProps<{
     id: string
   }>();
@@ -60,7 +64,7 @@
           </div>
 
           <div class="flex gap-2">
-            <div class="dropdown">
+            <div v-if="isAuthenticated" class="dropdown">
               <label tabindex="0" class="btn btn-primary">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />

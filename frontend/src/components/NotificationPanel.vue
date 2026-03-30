@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {ref, watch, computed, onUnmounted} from 'vue';
+  import {ref, watch, computed, onUnmounted} from 'vue';
   import { useRouter } from 'vue-router';
   import { storeToRefs } from "pinia";
   import { useAuthStore } from "@/store/auth";

@@ -5,6 +5,14 @@ import {useUiStore} from "@/store/ui";
 const API_URL = 'http://localhost:9000/auth';
 
 export const authService = {
+    /**
+     * Authenticates a user by sending credentials to the login endpoint.
+     * On success, updates the AuthStore with user information and token.
+     *
+     * @param {AuthRequest} dto - Object containing username and password.
+     * @returns {Promise<boolean>} - Returns true if login is successful.
+     * @throws {Error} - Throws an error with a specific message if credentials are invalid (401) or if a network error occurs.
+     */
     async login(dto: AuthRequest): Promise<boolean> {
         const uiStore = useUiStore();
         uiStore.setLoading(true);
@@ -38,6 +46,13 @@ export const authService = {
         }
     },
 
+    /**
+     * Registers a new user account and automatically attempts to log in upon successful registration.
+     *
+     * @param {UserRegister} dto - Object containing registration details (username, email, password, etc.).
+     * @returns {Promise<boolean>} - Returns true if both registration and subsequent login are successful.
+     * @throws {Error} - Throws an error with validation messages (400) or general registration failure messages.
+     */
     async register(dto: UserRegister): Promise<boolean> {
         const uiStore = useUiStore();
         uiStore.setLoading(true);

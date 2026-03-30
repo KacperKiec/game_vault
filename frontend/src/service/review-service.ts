@@ -5,6 +5,13 @@ import {useUiStore} from "@/store/ui";
 const API_URL = 'http://localhost:9000/review';
 
 export const reviewService = {
+    /**
+     * Submits a new review for a game.
+     * Requires an active user session and a valid JWT token.
+     * * @param {ReviewRequest} dto - Data transfer object containing the game ID, rating, and review content.
+     * @returns {Promise<Review>} - A promise that resolves to the newly created review object.
+     * @throws {Error} - Throws an error if the request fails or if the user is unauthorized.
+     */
     async addReview(dto: ReviewRequest): Promise<Review> {
         const uiStore = useUiStore();
         uiStore.setLoading(true);
@@ -32,6 +39,13 @@ export const reviewService = {
         }
     },
 
+    /**
+     * Permanently deletes a review from the system by its ID.
+     * This operation requires administrative or owner privileges verified via JWT.
+     * * @param {number} reviewId - The unique identifier of the review to be removed.
+     * @returns {Promise<boolean>} - Returns true if the deletion was successful.
+     * @throws {Error} - Throws an error if the server responds with a failure status.
+     */
     async deleteReview(reviewId: number): Promise<boolean> {
         const uiStore = useUiStore();
         uiStore.setLoading(true);
@@ -58,6 +72,13 @@ export const reviewService = {
         }
     },
 
+    /**
+     * Fetches all reviews associated with a specific game.
+     * This is a public endpoint that does not require authentication.
+     * * @param {number} guid - The unique global identifier (GUID) of the game.
+     * @returns {Promise<Review[]>} - A promise that resolves to an array of review objects for the game.
+     * @throws {Error} - Throws an error if the fetch operation fails.
+     */
     async getReviews(guid: number): Promise<Review[]> {
         const uiStore = useUiStore();
         uiStore.setLoading(true);

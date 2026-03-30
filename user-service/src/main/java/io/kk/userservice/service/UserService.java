@@ -16,6 +16,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Service responsible for managing user accounts and profiles.
+ * It provides core CRUD operations, registration logic, and utility methods
+ * for retrieving user-related data for internal services.
+ */
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -23,6 +28,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Registers a new user in the system.
+     * Validates that the email is unique before persisting the user with an encoded password
+     * and a default 'USER' role.
+     *
+     * @param userRegisterDTO The registration data including username, email, and plain-text password.
+     * @return true if the user was successfully created.
+     * @throws UserAlreadyExistException if a user with the provided email already exists.
+     */
     public Boolean addUser(UserRegisterDTO userRegisterDTO) {
         var existingUser = userRepository.findByEmail(userRegisterDTO.email());
 
@@ -39,6 +53,13 @@ public class UserService {
         return true;
     }
 
+    /**
+     * Updates an existing user's profile information.
+     *
+     * @param updateRequestDTO DTO containing updated username, email, and role.
+     * @return A {@link UserResponseDTO} representing the updated user profile.
+     * @throws UserNotFoundException if no user is found with the specified ID.
+     */
     public UserResponseDTO updateUser(UserUpdateRequestDTO updateRequestDTO) {
         var existingUser = userRepository.findById(updateRequestDTO.id()).orElseThrow(
                 () -> new UserNotFoundException("User with id " + updateRequestDTO.id() + " was not found")
@@ -52,11 +73,22 @@ public class UserService {
         return Mapper.toUserDTO(saved);
     }
 
+    /**
+     * Retrieves all registered users in the system.
+     *
+     * @return A list of {@link UserResponseDTO} objects.
+     */
     public List<UserResponseDTO> getUsers() {
         var users = userRepository.findAll();
         return users.stream().map(Mapper::toUserDTO).toList();
     }
 
+    /**
+     * Deletes a user from the system by their ID.
+     *
+     * @param id The unique identifier of the user to delete.
+     * @throws UserNotFoundException if the user does not exist.
+     */
     public void deleteUser(Long id) {
         var existingUser = userRepository.findById(id).orElseThrow(
                 () -> new UserNotFoundException("User with id " + id + " was not found")
@@ -65,19 +97,29 @@ public class UserService {
         userRepository.delete(existingUser);
     }
 
+    /**
+     * Checks if a user exists in the database.
+     *
+     * @param userId The unique identifier to check.
+     * @return true if the user exists, false otherwise.
+     */
     public Boolean isUserExisting(Long userId) {
-        var  existingUser = userRepository.findById(userId);
+        var existingUser = userRepository.findById(userId);
         return existingUser.isPresent();
     }
 
+    /**
+     * Retrieves a list of usernames and their corresponding IDs for a given set of user IDs.
+     * This is primarily used for resolving user IDs to displayable names in other microservices.
+     *
+     * @param ids A list of user IDs to resolve.
+     * @return A list of {@link UsernameDTO} objects containing ID and username mappings.
+     */
     public List<UsernameDTO> getUsernames(List<Long> ids) {
         return userRepository.findAllByIdIn(ids).stream()
-                .map(u -> {
-                    return UsernameDTO.builder()
-                            .userId(u.getId())
-                            .username(u.getUsername())
-                            .build();
-                }).toList();
+                .map(u -> UsernameDTO.builder()
+                        .userId(u.getId())
+                        .username(u.getUsername())
+                        .build()).toList();
     }
 }
-

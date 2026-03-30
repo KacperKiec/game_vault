@@ -11,12 +11,25 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Service responsible for managing user notifications.
+ * It provides functionality to create new notifications, mark existing ones as read,
+ * and retrieve a list of unread notifications for a specific user.
+ */
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
 
+    /**
+     * Creates and persists a new notification based on the provided request data.
+     * The notification is initialized with a "unread" status and the current timestamp.
+     *
+     * @param dto The data transfer object containing notification details such as title,
+     * content, recipient ID, type, and optional metadata.
+     * @return A {@link NotificationDTO} representing the newly created notification.
+     */
     public NotificationDTO createNotification(NotificationRequestDTO dto) {
         Notification notification = new Notification();
         notification.setTitle(dto.title());
@@ -38,6 +51,12 @@ public class NotificationService {
                 .build();
     }
 
+    /**
+     * Updates the status of a specific notification to "read".
+     *
+     * @param notificationId The unique identifier of the notification to update.
+     * @throws NotificationNotFoundException if no notification is found with the given ID.
+     */
     public void markNotificationAsRead(Long notificationId) {
         var notification = notificationRepository.findById(notificationId).orElseThrow(
                 () -> new NotificationNotFoundException("Notification not found")
@@ -47,6 +66,12 @@ public class NotificationService {
         notificationRepository.save(notification);
     }
 
+    /**
+     * Retrieves all notifications for a specific user that have not yet been read.
+     *
+     * @param userId The unique identifier of the recipient user.
+     * @return A list of {@link NotificationDTO} objects containing the unread notifications.
+     */
     public List<NotificationDTO> getUnreadUserNotifications(Integer userId) {
         return notificationRepository.findByRecipientIdAndRead(userId, false)
                 .stream().map(n -> NotificationDTO.builder()

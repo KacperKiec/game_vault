@@ -15,6 +15,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Service responsible for managing user-specific game collections.
+ * It handles adding games to different list types (Wishlist, To Play, Completed),
+ * moving games between lists, and retrieving a user's entire collection.
+ */
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -24,6 +29,16 @@ public class UserGameService {
     private final GameAPIService gameAPIService;
     private final InternalServiceClient internalServiceClient;
 
+    /**
+     * Modifies the state of a game within a user's collection.
+     * Depending on the provided {@link ListType}, it creates a new entry,
+     * updates an existing one, or removes the game from all lists if the type is NONE.
+     *
+     * @param gameListRequestDTO DTO containing the game identifier and the target list type.
+     * @param userId             The unique identifier of the user.
+     * @throws UserNotFoundException if the provided user ID does not exist in the system.
+     * @throws GameNotFoundException if the game cannot be found in the external API.
+     */
     @Transactional
     public void modifyLists(GameListRequestDTO gameListRequestDTO, Long userId) {
         var userExists = internalServiceClient.checkIfUserExists(userId);
@@ -52,12 +67,29 @@ public class UserGameService {
         }
     }
 
+    /**
+     * Internal helper method to fetch and map games for a specific list type.
+     * It retrieves game IDs from the local database and fetches full details from the external API.
+     *
+     * @param userId   The ID of the user.
+     * @param listType The specific category of games to retrieve.
+     * @return A list of {@link GameDetailsDTO} objects for the specified list.
+     */
     List<GameDetailsDTO> gameListCreator(Long userId, ListType listType) {
-        return gameListRepository.findByUserIdAndListType(userId, listType).stream()
-                .map((gameList) -> gameAPIService.getGame(gameList.getGameId(), userId))
+        List<GameList> userGames = gameListRepository.findByUserIdAndListType(userId, listType);
+        return userGames.stream()
+                .map(gameEntry -> gameAPIService.getGame(gameEntry.getGameId(), userId))
                 .toList();
     }
 
+    /**
+     * Retrieves all categorized game lists for a specific user.
+     * This includes the wishlist, games to play, and completed games.
+     *
+     * @param userId The unique identifier of the user.
+     * @return A {@link GameListResponseDTO} containing all user lists.
+     * @throws UserNotFoundException if the user does not exist.
+     */
     public GameListResponseDTO getLists(Long userId) {
         var userExists = internalServiceClient.checkIfUserExists(userId);
 
