@@ -9,4 +9,6 @@ public interface NotificationRepository {
     Notification save(Notification notification);
     Optional<Notification> findById(Long id);
     List<Notification> findByRecipientIdAndRead(Integer recipientId, Boolean read);
+    List<Notification> findUnsentToWebSocket();
+    void markAsSentToWebSocket(Long id);
 }

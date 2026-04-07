@@ -13,20 +13,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.web.reactive.function.client.ClientRequest;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
 
 @Configuration
 @EnableWebSecurity
@@ -82,20 +76,6 @@ public class SecurityConfig {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
-    }
-
-    @Bean
-    public WebClient webClient() {
-        return WebClient.builder()
-                .filter((request, next) -> Mono.justOrEmpty(SecurityContextHolder.getContext().getAuthentication())
-                        .filter(auth -> auth.getCredentials() instanceof Jwt)
-                        .map(auth -> (Jwt) Objects.requireNonNull(auth.getCredentials()))
-                        .map(jwt -> ClientRequest.from(request)
-                                .header("Authorization", "Bearer " + jwt.getTokenValue())
-                                .build())
-                        .defaultIfEmpty(request)
-                        .flatMap(next::exchange))
-                .build();
     }
 
     @Bean

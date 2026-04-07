@@ -1,122 +1,75 @@
 services:
-  user-db:
+  app-db-shared:
     image: postgres:17
+    container_name: app-db-shared
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: user
-      POSTGRES_DB: user_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: main_app_db
     volumes:
-      - user_data:/var/lib/postgresql/data
+      - shared_db_data:/var/lib/postgresql/data
     networks:
       - net
     ports:
-      - "5432:5432"
+      - "5444:5432"
 
-  game-db:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: game
-      POSTGRES_PASSWORD: game
-      POSTGRES_DB: game_db
-    volumes:
-      - game_data:/var/lib/postgresql/data
-    networks:
-      - net
-    ports:
-      - "5433:5432"
-
-  notification-db:
-    image: postgres:17
-    environment:
-      POSTGRES_USER: notif
-      POSTGRES_PASSWORD: notif
-      POSTGRES_DB: notification_db
-    volumes:
-      - notification_data:/var/lib/postgresql/data
-    networks:
-      - net
-    ports:
-      - "5434:5432"
-
-  rabbitmq:
-    image: rabbitmq:3-management
-    container_name: amqp-service
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    environment:
-      RABBITMQ_DEFAULT_USER: dev
-      RABBITMQ_DEFAULT_PASS: dev
-    networks:
-      - net
-
-  user-service:
+  user-service-jdbc:
     build: ./user-service
-    container_name: user-service
+    container_name: user-service-jdbc
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://user-db:5432/user_db
-      - SPRING_DATASOURCE_USERNAME=user
-      - SPRING_DATASOURCE_PASSWORD=user
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://app-db-shared:5432/main_app_db
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
       - APP_SECRET_KEY=dlugi_i_sekretny_klucz_do_podpisywania_tokenow
     depends_on:
-      - user-db
+      - app-db-shared
     networks:
       - net
 
-  game-service:
+  game-service-jdbc:
     build: ./game-service
-    container_name: game-service
+    container_name: game-service-jdbc
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://game-db:5432/game_db
-      - SPRING_DATASOURCE_USERNAME=game
-      - SPRING_DATASOURCE_PASSWORD=game
-      - SPRING_RABBITMQ_HOST=rabbitmq
-      - APP_USER_SERVICE_URL=http://user-service:8080
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://app-db-shared:5432/main_app_db
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - APP_USER_SERVICE_URL=http://user-service-jdbc:8080
       - APP_RAWGIO_API_KEY=${RAWGIO_API_KEY}
       - APP_SECRET_KEY=dlugi_i_sekretny_klucz_do_podpisywania_tokenow
     depends_on:
-      - game-db
-      - rabbitmq
+      - app-db-shared
+      - user-service-jdbc
     networks:
       - net
 
-  notification-service:
+  notification-service-jdbc:
     build: ./notification-service
-    container_name: notification-service
+    container_name: notification-service-jdbc
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://notification-db:5432/notification_db
-      - SPRING_DATASOURCE_USERNAME=notif
-      - SPRING_DATASOURCE_PASSWORD=notif
-      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://app-db-shared:5432/main_app_db
+      - SPRING_DATASOURCE_USERNAME=admin
+      - SPRING_DATASOURCE_PASSWORD=admin
       - APP_SECRET_KEY=dlugi_i_sekretny_klucz_do_podpisywania_tokenow
     depends_on:
-      - notification-db
-      - rabbitmq
+      - app-db-shared
+      - user-service-jdbc
     networks:
       - net
 
-  gateway-service:
+  gateway-service-jdbc:
     build: ./gateway-service
-    container_name: gateway-service
+    container_name: gateway-service-jdbc
     ports:
       - "9000:9000"
     environment:
       - FRONTEND_URL=http://localhost:5173
-      - USER_SERVICE_URL=http://user-service:8080
-      - GAME_SERVICE_URL=http://game-service:8090
-      - NOTIFICATION_SERVICE_URL=http://notification-service:8070
+      - USER_SERVICE_URL=http://user-service-jdbc:8080
+      - GAME_SERVICE_URL=http://game-service-jdbc:8090
+      - NOTIFICATION_SERVICE_URL=http://notification-service-jdbc:8070
     depends_on:
-      - user-service
-      - game-service
-      - notification-service
-    networks:
-      - net
-
-  frontend:
-    build: ./frontend
-    container_name: frontend
-    ports:
-      - "5173:80"
+      - user-service-jdbc
+      - game-service-jdbc
+      - notification-service-jdbc
     networks:
       - net
 
@@ -125,6 +78,4 @@ networks:
     driver: bridge
 
 volumes:
-  user_data:
-  game_data:
-  notification_data:
+  shared_db_data:

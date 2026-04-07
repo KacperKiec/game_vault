@@ -5,11 +5,10 @@ import io.kk.gameservice.dto.GameListRequestDTO;
 import io.kk.gameservice.dto.GameListResponseDTO;
 import io.kk.gameservice.exception.GameNotFoundException;
 import io.kk.gameservice.exception.UserNotFoundException;
-import io.kk.gameservice.integration.InternalServiceClient;
+import io.kk.gameservice.integration.InternalUserRepo;
 import io.kk.gameservice.model.GameList;
 import io.kk.gameservice.model.ListType;
 import io.kk.gameservice.repository.GameListRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,13 +20,12 @@ import java.util.List;
  * moving games between lists, and retrieving a user's entire collection.
  */
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class UserGameService {
 
     private final GameListRepository gameListRepository;
     private final GameAPIService gameAPIService;
-    private final InternalServiceClient internalServiceClient;
+    private final InternalUserRepo internalUserRepo;
 
     /**
      * Modifies the state of a game within a user's collection.
@@ -39,9 +37,8 @@ public class UserGameService {
      * @throws UserNotFoundException if the provided user ID does not exist in the system.
      * @throws GameNotFoundException if the game cannot be found in the external API.
      */
-    @Transactional
     public void modifyLists(GameListRequestDTO gameListRequestDTO, Long userId) {
-        var userExists = internalServiceClient.checkIfUserExists(userId);
+        var userExists = internalUserRepo.checkIfUserExists(userId);
 
         var game = gameAPIService.getGame(gameListRequestDTO.guid(), userId);
 
@@ -91,7 +88,7 @@ public class UserGameService {
      * @throws UserNotFoundException if the user does not exist.
      */
     public GameListResponseDTO getLists(Long userId) {
-        var userExists = internalServiceClient.checkIfUserExists(userId);
+        var userExists = internalUserRepo.checkIfUserExists(userId);
 
         if (!userExists) throw new UserNotFoundException("User not found");
 

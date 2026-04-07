@@ -1,23 +1,17 @@
 package io.kk.gameservice.model;
 
-import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-@Entity
-@Table(name = "game_list")
-@IdClass(GameListId.class)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GameList {
 
-    @Id
-    @Column(name = "user_id", nullable = false)
     private Long userId;
-
-    @Id
-    @Column(name = "game_id", nullable = false)
     private Long gameId;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "list_type", nullable = false)
     private ListType listType;
 }

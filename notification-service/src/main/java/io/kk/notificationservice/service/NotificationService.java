@@ -1,14 +1,11 @@
 package io.kk.notificationservice.service;
 
 import io.kk.notificationservice.dto.NotificationDTO;
-import io.kk.notificationservice.dto.NotificationRequestDTO;
 import io.kk.notificationservice.exception.NotificationNotFoundException;
-import io.kk.notificationservice.model.Notification;
 import io.kk.notificationservice.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -21,35 +18,6 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
-
-    /**
-     * Creates and persists a new notification based on the provided request data.
-     * The notification is initialized with a "unread" status and the current timestamp.
-     *
-     * @param dto The data transfer object containing notification details such as title,
-     * content, recipient ID, type, and optional metadata.
-     * @return A {@link NotificationDTO} representing the newly created notification.
-     */
-    public NotificationDTO createNotification(NotificationRequestDTO dto) {
-        Notification notification = new Notification();
-        notification.setTitle(dto.title());
-        notification.setContent(dto.content());
-        notification.setType(dto.type());
-        notification.setRecipientId(dto.recipientId());
-        notification.setMetadata(dto.metadata());
-        notification.setCreatedAt(LocalDateTime.now());
-        notification.setRead(false);
-        var saved = notificationRepository.save(notification);
-
-        return NotificationDTO.builder()
-                .id(saved.getId())
-                .title(saved.getTitle())
-                .content(saved.getContent())
-                .type(saved.getType())
-                .metadata(saved.getMetadata())
-                .createdAt(saved.getCreatedAt())
-                .build();
-    }
 
     /**
      * Updates the status of a specific notification to "read".

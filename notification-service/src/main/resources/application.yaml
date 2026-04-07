@@ -2,32 +2,16 @@ spring:
   application:
     name: notification-service
   datasource:
-    url: jdbc:postgresql://localhost:5434/notification_db
-    username: notif
-    password: notif
+    url: jdbc:postgresql://localhost:5444/main_app_db
+    username: admin
+    password: admin
     driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: dev
-    password: dev
-    virtual-host: /
 
 server:
   port: 8070
 
 app:
   secret-key: "dlugi_i_sekretny_klucz_do_podpisywania_tokenow"
-  rabbit:
-    queue: "notification-queue"
-    exchange: "notification-exchange"
-    routing-key: "add.notification"
 
 logging:
   level:

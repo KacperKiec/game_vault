@@ -3,21 +3,14 @@ package io.kk.gameservice.service;
 import io.kk.gameservice.dto.ReviewRequestDTO;
 import io.kk.gameservice.dto.ReviewResponseDTO;
 import io.kk.gameservice.exception.ReviewNotFoundException;
-import io.kk.gameservice.integration.InternalServiceClient;
-import io.kk.gameservice.integration.RabbitService;
-import io.kk.gameservice.model.GameList;
+import io.kk.gameservice.integration.InternalUserRepo;
 import io.kk.gameservice.model.Review;
-import io.kk.gameservice.repository.GameListRepository;
 import io.kk.gameservice.repository.ReviewRepository;
-import io.kk.gameservice.util.NotificationCreator;
-import io.kk.gameservice.util.NotificationType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Service responsible for managing game reviews.
@@ -29,9 +22,7 @@ import java.util.Map;
 public class ReviewService {
 
     private final ReviewRepository reviewRepository;
-    private final GameListRepository gameListRepository;
-    private final InternalServiceClient internalServiceClient;
-    private final RabbitService rabbitService;
+    private final InternalUserRepo internalUserRepo;
 
     /**
      * Adds a new review or updates an existing one for a specific game and user.
@@ -62,25 +53,7 @@ public class ReviewService {
         }
 
         var saved = reviewRepository.save(review);
-
-        var userIds = gameListRepository.findByGameId(dto.guid()).stream()
-                .map(GameList::getUserId)
-                .toList();
-
-        String title = "New review";
-        String content = "Someone added new review to the game you're interested in.";
-        Map<String, Object> metadata = new HashMap<>();
-        metadata.put("guid", dto.guid());
-
-        for (var u : userIds) {
-            if (!userId.equals(u)) {
-                var notificationRequestDTO = NotificationCreator.createNotification(
-                        NotificationType.NEW_REVIEW, u, title, content, metadata);
-                rabbitService.sendNotification(notificationRequestDTO);
-            }
-        }
-
-        var user = internalServiceClient.getUsernames(List.of(userId)).getFirst();
+        var user = internalUserRepo.getUsernames(List.of(userId)).getFirst();
 
         return ReviewResponseDTO.builder()
                 .id(saved.getId())
@@ -100,7 +73,7 @@ public class ReviewService {
      */
     public List<ReviewResponseDTO> getReviews(Long gameId) {
         var reviews = reviewRepository.findByGuid(gameId);
-        var users = internalServiceClient.getUsernames(reviews.stream()
+        var users = internalUserRepo.getUsernames(reviews.stream()
                 .map(Review::getUserId)
                 .toList());
 
