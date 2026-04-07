@@ -11,7 +11,7 @@
   const router = useRouter();
   defineProps<{
     wishlistSize: number,
-    toPlaySize: number,
+    ownedSize: number,
     completedSize: number
   }>();
 
@@ -77,7 +77,7 @@
         <li class="menu-title">My Lists</li>
         <li><a :class="{ 'active': activeList === ListType.NONE }" @click="setGameList(ListType.NONE)">📂 All Games</a></li>
         <li><a :class="{ 'active': activeList === ListType.WISHLIST }" @click="setGameList(ListType.WISHLIST)">⭐ Wishlist <span class="badge badge-sm">{{ wishlistSize }}</span></a></li>
-        <li><a :class="{ 'active': activeList === ListType.TODO }" @click="setGameList(ListType.TODO)">🎯 To Play <span class="badge badge-sm">{{ toPlaySize }}</span></a></li>
+        <li><a :class="{ 'active': activeList === ListType.OWNED }" @click="setGameList(ListType.OWNED)">🎯 Owned <span class="badge badge-sm">{{ ownedSize }}</span></a></li>
         <li><a :class="{ 'active': activeList === ListType.COMPLETED }" @click="setGameList(ListType.COMPLETED)">✅ Played <span class="badge badge-sm">{{ completedSize }}</span></a></li>
       </ul>
       <p v-else>Log in to see your game lists</p>

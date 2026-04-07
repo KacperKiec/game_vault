@@ -21,7 +21,7 @@
   const pageNumber = ref(1);
   const totalPages = ref(0);
   const pageSize = 20;
-  const lists = ref<GameListResponse>({ wishlist: [], gamesToPlay: [], completedGames: [] });
+  const lists = ref<GameListResponse>({ wishlist: [], ownedGames: [], completedGames: [] });
 
   const handleGameList = (listType: ListType) => {
     activeList.value = listType;
@@ -60,13 +60,13 @@
     }
 
     lists.value.wishlist = lists.value.wishlist.filter(g => g.guid !== updatedGame.guid);
-    lists.value.gamesToPlay = lists.value.gamesToPlay.filter(g => g.guid !== updatedGame.guid);
+    lists.value.ownedGames = lists.value.ownedGames.filter(g => g.guid !== updatedGame.guid);
     lists.value.completedGames = lists.value.completedGames.filter(g => g.guid !== updatedGame.guid);
 
     const gameToPush = { ...updatedGame};
     switch (updatedGame.listType) {
       case ListType.WISHLIST: lists.value.wishlist.push(gameToPush); break;
-      case ListType.TODO: lists.value.gamesToPlay.push(gameToPush); break;
+      case ListType.OWNED: lists.value.ownedGames.push(gameToPush); break;
       case ListType.COMPLETED: lists.value.completedGames.push(gameToPush); break;
       default: break;
     }
@@ -130,7 +130,7 @@
 
       switch (activeList.value) {
         case ListType.WISHLIST: sourceList = lists.value.wishlist; break;
-        case ListType.TODO: sourceList = lists.value.gamesToPlay; break;
+        case ListType.OWNED: sourceList = lists.value.ownedGames; break;
         case ListType.COMPLETED: sourceList = lists.value.completedGames; break;
       }
 
@@ -154,7 +154,7 @@
                @set-game-params="handleGameParams"
                @set-dates="handleGameDates"
                :wishlistSize="lists.wishlist.length"
-               :toPlaySize="lists.gamesToPlay.length"
+               :ownedSize="lists.ownedGames.length"
                :completedSize="lists.completedGames.length"
       />
 

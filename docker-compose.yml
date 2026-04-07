@@ -50,6 +50,75 @@ services:
     networks:
       - net
 
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://user-db:5432/user_db
+      - SPRING_DATASOURCE_USERNAME=user
+      - SPRING_DATASOURCE_PASSWORD=user
+      - APP_SECRET_KEY=dlugi_i_sekretny_klucz_do_podpisywania_tokenow
+    depends_on:
+      - user-db
+    networks:
+      - net
+
+  game-service:
+    build: ./game-service
+    container_name: game-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://game-db:5432/game_db
+      - SPRING_DATASOURCE_USERNAME=game
+      - SPRING_DATASOURCE_PASSWORD=game
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - APP_USER_SERVICE_URL=http://user-service:8080
+      - APP_RAWGIO_API_KEY=${RAWGIO_API_KEY}
+      - APP_SECRET_KEY=dlugi_i_sekretny_klucz_do_podpisywania_tokenow
+    depends_on:
+      - game-db
+      - rabbitmq
+    networks:
+      - net
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://notification-db:5432/notification_db
+      - SPRING_DATASOURCE_USERNAME=notif
+      - SPRING_DATASOURCE_PASSWORD=notif
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - APP_SECRET_KEY=dlugi_i_sekretny_klucz_do_podpisywania_tokenow
+    depends_on:
+      - notification-db
+      - rabbitmq
+    networks:
+      - net
+
+  gateway-service:
+    build: ./gateway-service
+    container_name: gateway-service
+    ports:
+      - "9000:9000"
+    environment:
+      - FRONTEND_URL=http://localhost:5173
+      - USER_SERVICE_URL=http://user-service:8080
+      - GAME_SERVICE_URL=http://game-service:8090
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8070
+    depends_on:
+      - user-service
+      - game-service
+      - notification-service
+    networks:
+      - net
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "5173:80"
+    networks:
+      - net
 
 networks:
   net:

@@ -1,5 +1,5 @@
 package io.kk.gameservice.model;
 
 public enum ListType {
-    NONE, WISHLIST, TODO, COMPLETED
+    NONE, WISHLIST, OWNED, COMPLETED
 }

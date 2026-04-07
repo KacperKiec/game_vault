@@ -3,8 +3,7 @@ import {CompatClient, Stomp} from '@stomp/stompjs';
 import { ref } from 'vue';
 import { useAuthStore } from "@/store/auth";
 
-const API_URL = 'http://localhost:9000';
-
+const API_URL = `${import.meta.env.VITE_API_URL}`;
 const stompClient = ref<CompatClient | null>(null);
 const isConnected = ref<boolean>(false);
 const latestNotification = ref<any>(null);

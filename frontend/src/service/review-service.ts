@@ -2,7 +2,7 @@ import {useAuthStore} from "@/store/auth";
 import {Review, ReviewRequest} from "@/types/types";
 import {useUiStore} from "@/store/ui";
 
-const API_URL = 'http://localhost:9000/review';
+const API_URL = `${import.meta.env.VITE_API_URL}/review`;
 
 export const reviewService = {
     /**

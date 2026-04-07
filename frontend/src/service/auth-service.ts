@@ -2,7 +2,7 @@ import {AuthRequest, AuthResponse, UserRegister} from "@/types/types";
 import {useAuthStore} from "@/store/auth";
 import {useUiStore} from "@/store/ui";
 
-const API_URL = 'http://localhost:9000/auth';
+const API_URL = `${import.meta.env.VITE_API_URL}/auth`;
 
 export const authService = {
     /**

@@ -1,7 +1,7 @@
 import {useAuthStore} from "@/store/auth";
 import {AppNotification} from "@/types/types";
 
-const API_URL = 'http://localhost:9000/notification';
+const API_URL = `${import.meta.env.VITE_API_URL}/notification`;
 
 export const notificationService = {
     /**

@@ -19,7 +19,7 @@ export interface UserRegister {
 export enum ListType {
     NONE = "NONE",
     WISHLIST = 'WISHLIST',
-    TODO = 'TODO',
+    OWNED = 'OWNED',
     COMPLETED = 'COMPLETED'
 }
 
@@ -52,7 +52,7 @@ export interface GameResponse {
 
 export interface GameListResponse {
     wishlist: Game[],
-    gamesToPlay: Game[],
+    ownedGames: Game[],
     completedGames: Game[]
 }
 

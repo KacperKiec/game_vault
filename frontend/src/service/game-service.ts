@@ -2,7 +2,7 @@ import {useAuthStore} from "@/store/auth";
 import {GameAPIParams, GameDetails, GameParams, GameResponse} from "@/types/types";
 import {useUiStore} from "@/store/ui";
 
-const API_URL = 'http://localhost:9000/api';
+const API_URL = `${import.meta.env.VITE_API_URL}/api`;
 
 export const gameService = {
     /**

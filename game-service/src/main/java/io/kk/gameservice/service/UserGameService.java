@@ -97,7 +97,7 @@ public class UserGameService {
 
         return GameListResponseDTO.builder()
                 .wishlist(gameListCreator(userId, ListType.WISHLIST))
-                .gamesToPlay(gameListCreator(userId, ListType.TODO))
+                .ownedGames(gameListCreator(userId, ListType.OWNED))
                 .completedGames(gameListCreator(userId, ListType.COMPLETED))
                 .build();
     }

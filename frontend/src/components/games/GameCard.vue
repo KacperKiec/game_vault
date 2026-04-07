@@ -76,7 +76,7 @@
           <label tabindex="0" class="btn btn-primary btn-sm">+ Add to List</label>
           <ul tabindex="0" class="dropdown-content menu bg-base-300 rounded-box w-42 p-2 shadow-lg">
             <li><a @click="handleAddingToList(game.guid, ListType.WISHLIST)">⭐ Wishlist <span v-if="game.listType === ListType.WISHLIST" class="badge badge-sm">✔️</span></a></li>
-            <li><a @click="handleAddingToList(game.guid, ListType.TODO)">🎯 To Play <span v-if="game.listType === ListType.TODO" class="badge badge-sm">✔️</span></a></li>
+            <li><a @click="handleAddingToList(game.guid, ListType.OWNED)">🎯 Owned <span v-if="game.listType === ListType.OWNED" class="badge badge-sm">✔️</span></a></li>
             <li><a @click="handleAddingToList(game.guid, ListType.COMPLETED)">✅ Played <span v-if="game.listType === ListType.COMPLETED" class="badge badge-sm">✔️</span></a></li>
           </ul>
         </div>
