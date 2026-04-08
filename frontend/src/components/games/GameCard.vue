@@ -55,10 +55,12 @@
   });
 
   const handleAddingToList = async (guid: number, type: ListType) => {
-    props.game.listType = type;
+    if (props.game.listType === type) props.game.listType = ListType.NONE;
+    else props.game.listType = type;
+
     const dto: GameListRequest = {
       guid: guid,
-      listType: type,
+      listType: props.game.listType,
     }
     const success = await gameListService.modifyLists(dto);
     if (success) setNewListItem(props.game);

@@ -84,7 +84,7 @@
     </div>
 
     <div class="collapse collapse-arrow bg-base-300">
-      <input type="checkbox" checked />
+      <input type="checkbox" />
       <div class="collapse-title font-medium">Platform</div>
 
       <div class="collapse-content p-0">
@@ -120,20 +120,21 @@
     <div class="collapse collapse-arrow bg-base-300">
       <input type="checkbox" />
       <div class="collapse-title font-medium">Release Year</div>
-      <div class="collapse-content pt-4 mt-2"> <div class="px-2">
-        <Slider
-            v-model="yearRange"
-            :min="1980"
-            :max="2026"
-            :step="1"
-            @change="handleYearChange"
-            class="game-slider"
-        />
-      </div>
+      <div class="collapse-content p-0">
+        <div class="px-6 pb-2 mt-6">
+          <Slider
+              v-model="yearRange"
+              :min="1980"
+              :max="2026"
+              :step="1"
+              @change="handleYearChange"
+              class="game-slider"
+          />
 
-        <div class="flex justify-between text-xs text-base-content/60 mt-6">
-          <span>From: <b>{{ yearRange[0] }}</b></span>
-          <span>To: <b>{{ yearRange[1] }}</b></span>
+          <div class="flex justify-between text-xs text-base-content/60 mt-6">
+            <span>From: <b>{{ yearRange[0] }}</b></span>
+            <span>To: <b>{{ yearRange[1] }}</b></span>
+          </div>
         </div>
       </div>
     </div>
