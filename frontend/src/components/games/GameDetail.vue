@@ -37,10 +37,12 @@
   });
 
   const handleAddingToList = async (guid: number, type: ListType) => {
-    game.value.listType = type;
+    if (game.value.listType === type) game.value.listType = ListType.NONE;
+    else game.value.listType = type;
+
     const dto: GameListRequest = {
       guid: guid,
-      listType: type,
+      listType: game.value.listType,
     }
     const success = await gameListService.modifyLists(dto);
     if (success) setNewListItem(game.value);
