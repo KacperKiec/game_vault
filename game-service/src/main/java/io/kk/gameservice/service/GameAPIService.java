@@ -98,8 +98,16 @@ public class GameAPIService {
                 }
 
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-                String date = rootNode.path("released").asText();
-                Date releaseDate = Objects.equals(date, "null") ? null : formatter.parse(date);
+                JsonNode releasedNode = rootNode.path("released");
+                Date releaseDate = null;
+
+                if (!releasedNode.isMissingNode() && !releasedNode.isNull() && !releasedNode.asText().isEmpty()) {
+                    try {
+                        releaseDate = formatter.parse(releasedNode.asText());
+                    } catch (ParseException e) {
+                        log.warn("Could not parse date: {} for game: {}", releasedNode.asText(), guid);
+                    }
+                }
 
                 ListType type  = ListType.NONE;
                 if (userId != null) {
@@ -122,8 +130,8 @@ public class GameAPIService {
                         .website(rootNode.path("website").asText())
                         .build();
             }
-        } catch (IOException | InterruptedException | ParseException e) {
-            throw new RuntimeException("Failed to fetch game details", e);
+        } catch (IOException | InterruptedException e) {
+            throw new GameApiException("Failed to fetch game details: " + e);
         }
 
         throw new GameNotFoundException("Game not found");
@@ -217,8 +225,17 @@ public class GameAPIService {
                     game.platforms(platforms);
 
                     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-                    String date = elemNode.path("released").asText();
-                    Date releaseDate = Objects.equals(date, "null") ? null : formatter.parse(date);
+
+                    JsonNode releasedNode = elemNode.path("released");
+                    Date releaseDate = null;
+
+                    if (!releasedNode.isMissingNode() && !releasedNode.isNull() && !releasedNode.asText().isEmpty()) {
+                        try {
+                            releaseDate = formatter.parse(releasedNode.asText());
+                        } catch (ParseException e) {
+                            log.warn("Could not parse date: {} for game: {}", releasedNode.asText(), guid);
+                        }
+                    }
                     game.releaseDate(releaseDate);
 
                     games.add(game.build());
@@ -230,8 +247,8 @@ public class GameAPIService {
                         .build();
 
             }
-        } catch (IOException | InterruptedException | ParseException e) {
-            throw new RuntimeException("Failed to fetch games list", e);
+        } catch (IOException | InterruptedException e) {
+            throw new GameApiException("Failed to fetch games list: " + e);
         }
 
         throw new GameNotFoundException("Game not found");
