@@ -17,9 +17,11 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -158,7 +160,8 @@ public class GameAPIService {
         }
 
         if (nameSearch != null && !nameSearch.isEmpty()) {
-            params.addParam("search", nameSearch);
+            String encodedSearch = URLEncoder.encode(nameSearch, StandardCharsets.UTF_8);
+            params.addParam("search", encodedSearch);
         }
 
         if (gameGenres != null && !gameGenres.isEmpty()) {
