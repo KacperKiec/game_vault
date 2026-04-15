@@ -73,6 +73,14 @@ services:
     networks:
       - net
 
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - "5173:80"
+    networks:
+      - net
+
 networks:
   net:
     driver: bridge
