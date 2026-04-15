@@ -1,17 +1,17 @@
 <script setup lang="ts">
 
-  import Sidebar from "@/components/Sidebar.vue";
-  import Topbar from "@/components/Topbar.vue";
-  import AuthDialog from "@/components/auth/AuthDialog.vue";
-  import {onMounted, ref} from 'vue';
-  import {Game, GameAPIParams, GameListResponse, GameParams, ListType} from "@/types/types";
-  import {storeToRefs} from "pinia";
-  import {gameListService} from "@/service/game-list-service";
-  import {useAuthStore} from "@/store/auth";
-  import {gameService} from "@/service/game-service";
-  import { useUiStore } from '@/store/ui';
+import Sidebar from "@/components/Sidebar.vue";
+import Topbar from "@/components/Topbar.vue";
+import AuthDialog from "@/components/auth/AuthDialog.vue";
+import {onMounted, ref} from 'vue';
+import {Game, GameAPIParams, GameListResponse, GameParams, ListType} from "@/types/types";
+import {storeToRefs} from "pinia";
+import {gameListService} from "@/service/game-list-service";
+import {useAuthStore} from "@/store/auth";
+import {gameService} from "@/service/game-service";
+import {useUiStore} from '@/store/ui';
 
-  const uiStore = useUiStore();
+const uiStore = useUiStore();
   const authStore = useAuthStore();
   const { isAuthenticated } = storeToRefs(authStore);
   const isAuthOpen = ref(false);
@@ -141,11 +141,20 @@
       displayedGames.value = filtered.slice(start, start + pageSize);
     }
   };
+
+  const handleLogout = () => {
+    lists.value = {wishlist: [], ownedGames: [], completedGames: []};
+    if (activeList.value !== ListType.NONE) {
+      handleGameList(ListType.NONE);
+    }
+  }
 </script>
 
 <template>
   <div class="min-h-screen bg-base-100 p-4">
-    <Topbar @openAuthDialog="isAuthOpen = true"/>
+    <Topbar
+        @openAuthDialog="isAuthOpen = true"
+        @logout="handleLogout"/>
 
     <div class="flex gap-6">
       <Sidebar class="md:flex flex-col"

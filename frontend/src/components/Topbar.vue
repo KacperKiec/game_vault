@@ -6,11 +6,20 @@ import NotificationPanel from "@/components/NotificationPanel.vue";
 const authStore = useAuthStore();
 const { isAuthenticated, username } = storeToRefs(authStore);
 
-const emit = defineEmits(['openAuthDialog']);
+const emit = defineEmits(['openAuthDialog', 'logout']);
 
 const openAuthDialog = () => {
   emit('openAuthDialog');
 };
+
+const logout = () => {
+  emit('logout');
+}
+
+const handleLogout = () => {
+  authStore.logout();
+  emit('logout');
+}
 
 </script>
 
@@ -42,7 +51,7 @@ const openAuthDialog = () => {
             {{ username }}
           </div>
           <ul tabindex="0" class="mt-3 z-1 p-2 shadow menu menu-sm dropdown-content bg-base-300 rounded-box w-52">
-            <li><a @click="authStore.logout()" class="text-error">Logout</a></li>
+            <li><a @click="handleLogout" class="text-error">Logout</a></li>
           </ul>
         </div>
       </div>
