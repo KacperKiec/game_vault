@@ -1,5 +1,7 @@
 package io.kk.gameservice.integration;
 
+import io.kk.envelope.IntegrationEvent;
+import io.kk.gameservice.dto.ActivityRequestDTO;
 import io.kk.gameservice.dto.NotificationRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -11,10 +13,24 @@ import org.springframework.stereotype.Service;
 public class RabbitService {
     private final RabbitTemplate rabbitTemplate;
 
-    @Value("${app.rabbit.queue}")
-    private String queueName;
+    @Value("${app.rabbit.notification.queue}")
+    private String notificationQueueName;
+
+    @Value("${app.rabbit.activity.queue}")
+    private String activityQueueName;
+
+    @Value("${app.rabbit.dashboard.queue}")
+    private String dashboardQueueName;
 
     public void sendNotification(NotificationRequestDTO dto) {
-        rabbitTemplate.convertAndSend(queueName, dto);
+        rabbitTemplate.convertAndSend(notificationQueueName, dto);
+    }
+
+    public void sendActivity(ActivityRequestDTO dto) {
+        rabbitTemplate.convertAndSend(activityQueueName, dto);
+    }
+
+    public void sendDashboardEvent(IntegrationEvent event) {
+        rabbitTemplate.convertAndSend(dashboardQueueName, event);
     }
 }

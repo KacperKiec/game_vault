@@ -1,10 +1,10 @@
 spring:
   application:
-    name: game-service
+    name: user-insights-service
   datasource:
-    url: jdbc:postgresql://localhost:5433/game_db
-    username: game
-    password: game
+    url: jdbc:postgresql://localhost:5435/activity_db
+    username: activity
+    password: activity
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -12,26 +12,22 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  mongodb:
+    uri: mongodb://dash:dash@localhost:27017/dashboard_db?authSource=admin
   rabbitmq:
     host: localhost
     port: 5672
     username: dev
     password: dev
     virtual-host: /
+
 server:
-  port: 8090
+  port: 8060
 
 app:
   secret-key: "dlugi_i_sekretny_klucz_do_podpisywania_tokenow"
   user-service-url: "http://localhost:8080"
-  rawgio-api:
-    key: ${RAWGIO_API_KEY}
-    uri: https://api.rawg.io/api
   rabbit:
-    notification:
-      queue: "notification-queue"
-      exchange: "notification-exchange"
-      routing-key: "add.notification"
     activity:
       queue: "activity-queue"
       exchange: "activity-exchange"

@@ -38,6 +38,32 @@ services:
     ports:
       - "5434:5432"
 
+  activity-db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: activity
+      POSTGRES_PASSWORD: activity
+      POSTGRES_DB: activity_db
+    volumes:
+      - activity_data:/var/lib/postgresql/data
+    networks:
+      - net
+    ports:
+      - "5435:5432"
+
+  dashboard-db:
+    image: mongo:8
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: dash
+      MONGO_INITDB_ROOT_PASSWORD: dash
+      MONGO_INITDB_DATABASE: dashboard_db
+    ports:
+      - "27017:27017"
+    networks:
+      - net
+    volumes:
+      - dashboard_data:/data/db
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: amqp-service
@@ -128,3 +154,5 @@ volumes:
   user_data:
   game_data:
   notification_data:
+  activity_data:
+  dashboard_data:

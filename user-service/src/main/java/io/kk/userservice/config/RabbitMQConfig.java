@@ -1,4 +1,4 @@
-package io.kk.gameservice.config;
+package io.kk.userservice.config;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
@@ -12,14 +12,13 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
-
     public final String QUEUE_NAME;
     public final String EXCHANGE_NAME;
     public final String ROUTING_KEY;
 
-    public RabbitMQConfig(@Value("${app.rabbit.notification.queue}") String queueName,
-                          @Value("${app.rabbit.notification.exchange}") String exchangeName,
-                          @Value("${app.rabbit.notification.routing-key}") String routingKey) {
+    public RabbitMQConfig(@Value("${app.rabbit.dashboard.queue}") String queueName,
+                          @Value("${app.rabbit.dashboard.exchange}") String exchangeName,
+                          @Value("${app.rabbit.dashboard.routing-key}") String routingKey) {
         QUEUE_NAME = queueName;
         EXCHANGE_NAME = exchangeName;
         ROUTING_KEY = routingKey;

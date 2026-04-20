@@ -1,11 +1,15 @@
 package io.kk.userservice.service;
 
+import io.kk.envelope.IntegrationEvent;
+import io.kk.payload.UserRegisteredPayload;
+import io.kk.type.EventType;
 import io.kk.userservice.dto.UserRegisterDTO;
 import io.kk.userservice.dto.UserResponseDTO;
 import io.kk.userservice.dto.UserUpdateRequestDTO;
 import io.kk.userservice.dto.UsernameDTO;
 import io.kk.userservice.exception.UserAlreadyExistException;
 import io.kk.userservice.exception.UserNotFoundException;
+import io.kk.userservice.integration.RabbitService;
 import io.kk.userservice.model.Role;
 import io.kk.userservice.model.User;
 import io.kk.userservice.repository.UserRepository;
@@ -14,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -27,11 +32,12 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RabbitService rabbitService;
 
     /**
      * Registers a new user in the system.
      * Validates that the email is unique before persisting the user with an encoded password
-     * and a default 'USER' role.
+     * and a default 'USER' role. Sending event to dashboard service.
      *
      * @param userRegisterDTO The registration data including username, email, and plain-text password.
      * @return true if the user was successfully created.
@@ -48,7 +54,16 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(userRegisterDTO.password()));
         user.setRole(Role.USER);
 
-        userRepository.save(user);
+        var saved = userRepository.save(user);
+
+        UserRegisteredPayload payload = UserRegisteredPayload.builder()
+                .username(saved.getUsername())
+                .email(saved.getEmail())
+                .build();
+
+        IntegrationEvent<UserRegisteredPayload> event = new IntegrationEvent<>(EventType.USER_REGISTERED, "user-service", saved.getId(), Instant.now(), payload);
+
+        rabbitService.sendDashboardEvent(event);
 
         return true;
     }
