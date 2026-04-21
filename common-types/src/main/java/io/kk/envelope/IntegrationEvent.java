@@ -1,17 +1,19 @@
 package io.kk.envelope;
 
 import io.kk.type.EventType;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class IntegrationEvent<T> {
     private EventType eventType;
     private String sourceService;
     private Long userId;
-    private Instant occurredAt;
+    private LocalDateTime occurredAt;
     private T payload;
-
-    public IntegrationEvent(EventType eventType, String sourceService, Long userId, Instant occurredAt, T payload) {}
 }

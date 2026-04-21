@@ -30,7 +30,7 @@ public class RabbitService {
         rabbitTemplate.convertAndSend(activityQueueName, dto);
     }
 
-    public void sendDashboardEvent(IntegrationEvent event) {
+    public void sendDashboardEvent(IntegrationEvent<?> event) {
         rabbitTemplate.convertAndSend(dashboardQueueName, event);
     }
 }

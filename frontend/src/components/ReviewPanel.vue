@@ -10,12 +10,14 @@ import {Review, ReviewRequest} from "@/types/types";
 
   const props = defineProps<{
     guid: number;
+    name: string;
   }>();
 
   const reviews = ref<Review[]>([]);
   const userReview = ref<Review | null>(null);
   const newReview = ref<ReviewRequest>({
     guid: props.guid,
+    gameName: props.name,
     content: '',
     rating: 5
   });
