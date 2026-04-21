@@ -4,14 +4,14 @@ import io.kk.gameservice.util.ActivityType;
 import lombok.Builder;
 
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Builder
 public record ActivityRequestDTO(
         Long userId,
         ActivityType activityType,
-        Instant occurredAt,
+        LocalDateTime occurredAt,
         Long relatedGameId,
         Map<String, Object> metadata
 ) implements Serializable {

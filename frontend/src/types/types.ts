@@ -88,6 +88,7 @@ export interface Review {
 
 export interface ReviewRequest {
     guid: number,
+    gameName: string,
     content: string,
     rating: number
 }

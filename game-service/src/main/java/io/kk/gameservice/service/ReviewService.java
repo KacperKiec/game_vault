@@ -1,5 +1,7 @@
 package io.kk.gameservice.service;
 
+import io.kk.envelope.IntegrationEvent;
+import io.kk.gameservice.dto.ActivityRequestDTO;
 import io.kk.gameservice.dto.ReviewRequestDTO;
 import io.kk.gameservice.dto.ReviewResponseDTO;
 import io.kk.gameservice.exception.ReviewNotFoundException;
@@ -9,12 +11,16 @@ import io.kk.gameservice.model.GameList;
 import io.kk.gameservice.model.Review;
 import io.kk.gameservice.repository.GameListRepository;
 import io.kk.gameservice.repository.ReviewRepository;
+import io.kk.gameservice.util.ActivityType;
 import io.kk.gameservice.util.NotificationCreator;
 import io.kk.gameservice.util.NotificationType;
+import io.kk.payload.ReviewPayload;
+import io.kk.type.EventType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -80,6 +86,9 @@ public class ReviewService {
             }
         }
 
+        sendActivity(userId, saved, dto.gameName(), ActivityType.REVIEW_ADDED);
+        sendDashboardEvent(userId, saved, dto.gameName(), EventType.REVIEW_ADDED);
+
         var user = internalServiceClient.getUsernames(List.of(userId)).getFirst();
 
         return ReviewResponseDTO.builder()
@@ -137,5 +146,36 @@ public class ReviewService {
         }
 
         reviewRepository.deleteById(reviewId);
+
+        sendActivity(userId, review, null, ActivityType.REVIEW_DELETED);
+        sendDashboardEvent(userId, review, null, EventType.REVIEW_DELETED);
+    }
+
+    private void sendActivity(Long userId, Review review, String gameName, ActivityType activityType) {
+        Map<String, Object> metadata = new HashMap<>();
+        metadata.put("guid", review.getGuid());
+        if (gameName != null) metadata.put("gameName", gameName);
+
+        ActivityRequestDTO activityRequestDTO = ActivityRequestDTO.builder()
+                .userId(userId)
+                .occurredAt(LocalDateTime.now())
+                .relatedGameId(review.getGuid())
+                .activityType(activityType)
+                .metadata(metadata)
+                .build();
+        rabbitService.sendActivity(activityRequestDTO);
+    }
+
+    private void sendDashboardEvent(Long userId, Review review, String gameName, EventType eventType) {
+        ReviewPayload payload = ReviewPayload.builder()
+                .reviewId(review.getId())
+                .rating(review.getRating())
+                .reviewPreview(review.getContent())
+                .gameTitle(gameName)
+                .gameId(review.getGuid())
+                .createdAt(review.getDate())
+                .build();
+        IntegrationEvent<ReviewPayload> event = new IntegrationEvent<>(eventType, "game-service", userId, LocalDateTime.now(), payload);
+        rabbitService.sendDashboardEvent(event);
     }
 }

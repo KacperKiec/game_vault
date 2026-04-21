@@ -6,7 +6,7 @@ import lombok.Data;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Data
@@ -29,7 +29,7 @@ public class Activity {
 
     @NotNull
     @Column(name = "occurred_at", nullable = false)
-    private Instant occurredAt;
+    private LocalDateTime occurredAt;
 
     @NotNull
     @Column(name = "related_game_id")

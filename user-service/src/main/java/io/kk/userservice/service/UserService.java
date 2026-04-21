@@ -18,7 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -37,7 +37,7 @@ public class UserService {
     /**
      * Registers a new user in the system.
      * Validates that the email is unique before persisting the user with an encoded password
-     * and a default 'USER' role. Sending event to dashboard service.
+     * and a default 'USER' role. Sending dashboard event.
      *
      * @param userRegisterDTO The registration data including username, email, and plain-text password.
      * @return true if the user was successfully created.
@@ -61,7 +61,7 @@ public class UserService {
                 .email(saved.getEmail())
                 .build();
 
-        IntegrationEvent<UserRegisteredPayload> event = new IntegrationEvent<>(EventType.USER_REGISTERED, "user-service", saved.getId(), Instant.now(), payload);
+        IntegrationEvent<UserRegisteredPayload> event = new IntegrationEvent<>(EventType.USER_REGISTERED, "user-service", saved.getId(), LocalDateTime.now(), payload);
 
         rabbitService.sendDashboardEvent(event);
 

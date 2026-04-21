@@ -3,7 +3,7 @@ package io.kk.userinsightsservice.dto;
 import io.kk.userinsightsservice.model.postgres.ActivityType;
 import jakarta.validation.constraints.NotNull;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 public record ActivityDTO(
@@ -14,7 +14,7 @@ public record ActivityDTO(
         ActivityType activityType,
 
         @NotNull
-        Instant occurredAt,
+        LocalDateTime occurredAt,
 
         @NotNull
         Long relatedGameId,
