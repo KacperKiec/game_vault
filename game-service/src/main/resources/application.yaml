@@ -32,10 +32,6 @@ app:
       queue: "notification-queue"
       exchange: "notification-exchange"
       routing-key: "add.notification"
-    activity:
-      queue: "activity-queue"
-      exchange: "activity-exchange"
-      routing-key: "add.activity"
     dashboard:
       queue: "dashboard-queue"
       exchange: "dashboard-exchange"

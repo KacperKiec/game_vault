@@ -26,13 +26,11 @@ server:
 
 app:
   secret-key: "dlugi_i_sekretny_klucz_do_podpisywania_tokenow"
-  user-service-url: "http://localhost:8080"
   rabbit:
-    activity:
-      queue: "activity-queue"
-      exchange: "activity-exchange"
-      routing-key: "add.activity"
     dashboard:
       queue: "dashboard-queue"
       exchange: "dashboard-exchange"
       routing-key: "add.dashboard"
+  insights:
+    reconciliation:
+      interval-ms: 60000

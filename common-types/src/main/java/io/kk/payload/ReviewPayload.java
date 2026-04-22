@@ -3,7 +3,7 @@ package io.kk.payload;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Builder
 @Getter
@@ -13,5 +13,5 @@ public class ReviewPayload {
     private String gameTitle;
     private Integer rating;
     private String reviewPreview;
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 }

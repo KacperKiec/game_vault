@@ -2,7 +2,7 @@ package io.kk.gameservice.dto;
 
 import lombok.Builder;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Builder
 public record ReviewResponseDTO(
@@ -10,6 +10,6 @@ public record ReviewResponseDTO(
         String username,
         String content,
         Integer rating,
-        LocalDate date
+        LocalDateTime date
 ) {
 }

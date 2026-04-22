@@ -8,6 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Document(collection = "library_dashboard")
@@ -20,6 +21,9 @@ public class DashboardDocument {
 
     @NotNull
     private LocalDateTime updatedAt;
+
+    @NotNull
+    private UUID lastProcessedEventId;
 
     @NotNull
     private Long version;

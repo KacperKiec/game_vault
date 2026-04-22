@@ -11,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -36,7 +35,7 @@ class DashboardServiceReviewTest {
         var dashboard = buildDashboard(1L);
         when(dashboardRepository.findByUserId(1L)).thenReturn(Optional.of(dashboard));
 
-        dashboardService.handleDashboardEvent(reviewAddedEvent(1L, 10L, 8));
+        dashboardService.handleDashboardEvent(reviewAddedEvent(1L, 10L, 5));
 
         assertThat(dashboard.getLatestReviews()).hasSize(1);
         assertThat(dashboard.getLatestReviews().getFirst().getReviewId()).isEqualTo(10L);
@@ -48,10 +47,10 @@ class DashboardServiceReviewTest {
         var dashboard = buildDashboard(1L);
         when(dashboardRepository.findByUserId(1L)).thenReturn(Optional.of(dashboard));
 
-        dashboardService.handleDashboardEvent(reviewAddedEvent(1L, 10L, 8));
+        dashboardService.handleDashboardEvent(reviewAddedEvent(1L, 10L, 4));
 
         assertThat(dashboard.getStats().getReviewCount()).isEqualTo(1);
-        assertThat(dashboard.getStats().getAverageRating()).isEqualTo(8.0);
+        assertThat(dashboard.getStats().getAverageRating()).isEqualTo(4.0);
     }
 
     @Test
@@ -59,11 +58,11 @@ class DashboardServiceReviewTest {
         var dashboard = buildDashboard(1L);
         when(dashboardRepository.findByUserId(1L)).thenReturn(Optional.of(dashboard));
 
-        dashboardService.handleDashboardEvent(reviewAddedEvent(1L, 10L, 6));
-        dashboardService.handleDashboardEvent(reviewAddedEvent(1L, 11L, 10));
+        dashboardService.handleDashboardEvent(reviewAddedEvent(1L, 10L, 3));
+        dashboardService.handleDashboardEvent(reviewAddedEvent(1L, 11L, 5));
 
         assertThat(dashboard.getStats().getReviewCount()).isEqualTo(2);
-        assertThat(dashboard.getStats().getAverageRating()).isEqualTo(8.0);
+        assertThat(dashboard.getStats().getAverageRating()).isEqualTo(4.0);
     }
 
     @Test
@@ -71,7 +70,7 @@ class DashboardServiceReviewTest {
         var dashboard = buildDashboard(1L);
         when(dashboardRepository.findByUserId(1L)).thenReturn(Optional.of(dashboard));
 
-        dashboardService.handleDashboardEvent(reviewAddedEvent(1L, 10L, 8));
+        dashboardService.handleDashboardEvent(reviewAddedEvent(1L, 10L, 4));
 
         assertThat(dashboard.getVersion()).isEqualTo(2L);
     }
@@ -82,7 +81,7 @@ class DashboardServiceReviewTest {
         when(dashboardRepository.findByUserId(1L)).thenReturn(Optional.of(dashboard));
 
         for (long i = 1; i <= 6; i++) {
-            dashboardService.handleDashboardEvent(reviewAddedEvent(1L, i, 7));
+            dashboardService.handleDashboardEvent(reviewAddedEvent(1L, i, 4));
         }
         assertThat(dashboard.getLatestReviews()).hasSize(6);
         assertThat(dashboard.getLatestReviews().getFirst().getReviewId()).isEqualTo(1L);
@@ -111,11 +110,11 @@ class DashboardServiceReviewTest {
         var dashboard = buildDashboard(1L);
         dashboard.getStats().setReviewCount(1);
         dashboard.getStats().setRatingSum(8.0);
-        var item = new DashboardReviewItem(10L, 5L, "Game", 8, "...", LocalDate.now(), false);
+        var item = new DashboardReviewItem(10L, 5L, "Game", 2, "...", LocalDateTime.now(), false);
         dashboard.getLatestReviews().add(item);
         when(dashboardRepository.findByUserId(1L)).thenReturn(Optional.of(dashboard));
 
-        dashboardService.handleDashboardEvent(reviewDeletedEvent(1L, 10L, 8));
+        dashboardService.handleDashboardEvent(reviewDeletedEvent(1L, 10L, 2));
 
         assertThat(item.getIsDeleted()).isTrue();
     }
@@ -124,11 +123,11 @@ class DashboardServiceReviewTest {
     void removeReview_decrementsReviewCount() {
         var dashboard = buildDashboard(1L);
         dashboard.getStats().setReviewCount(2);
-        dashboard.getStats().setRatingSum(16.0);
-        dashboard.getLatestReviews().add(new DashboardReviewItem(10L, 5L, "Game", 8, "...", LocalDate.now(), false));
+        dashboard.getStats().setRatingSum(10.0);
+        dashboard.getLatestReviews().add(new DashboardReviewItem(10L, 5L, "Game", 2, "...", LocalDateTime.now(), false));
         when(dashboardRepository.findByUserId(1L)).thenReturn(Optional.of(dashboard));
 
-        dashboardService.handleDashboardEvent(reviewDeletedEvent(1L, 10L, 8));
+        dashboardService.handleDashboardEvent(reviewDeletedEvent(1L, 10L, 2));
 
         assertThat(dashboard.getStats().getReviewCount()).isEqualTo(1);
     }
@@ -138,12 +137,12 @@ class DashboardServiceReviewTest {
         var dashboard = buildDashboard(1L);
         dashboard.getStats().setReviewCount(2);
         dashboard.getStats().setRatingSum(8.0);
-        dashboard.getLatestReviews().add(new DashboardReviewItem(10L, 5L, "Game", 3, "...", LocalDate.now(), false));
+        dashboard.getLatestReviews().add(new DashboardReviewItem(10L, 5L, "Game", 4, "...", LocalDateTime.now(), false));
         when(dashboardRepository.findByUserId(1L)).thenReturn(Optional.of(dashboard));
 
-        dashboardService.handleDashboardEvent(reviewDeletedEvent(1L, 10L, 3));
+        dashboardService.handleDashboardEvent(reviewDeletedEvent(1L, 10L, 4));
 
-        assertThat(dashboard.getStats().getAverageRating()).isEqualTo(5.0);
+        assertThat(dashboard.getStats().getAverageRating()).isEqualTo(4.0);
     }
 
     @Test
@@ -162,11 +161,11 @@ class DashboardServiceReviewTest {
     void removeReview_lastReview_reviewCountBecomesZero() {
         var dashboard = buildDashboard(1L);
         dashboard.getStats().setReviewCount(1);
-        dashboard.getStats().setRatingSum(7.0);
-        dashboard.getLatestReviews().add(new DashboardReviewItem(10L, 5L, "Game", 7, "...", LocalDate.now(), false));
+        dashboard.getStats().setRatingSum(5.0);
+        dashboard.getLatestReviews().add(new DashboardReviewItem(10L, 5L, "Game", 5, "...", LocalDateTime.now(), false));
         when(dashboardRepository.findByUserId(1L)).thenReturn(Optional.of(dashboard));
 
-        dashboardService.handleDashboardEvent(reviewDeletedEvent(1L, 10L, 7));
+        dashboardService.handleDashboardEvent(reviewDeletedEvent(1L, 10L, 5));
 
         assertThat(dashboard.getStats().getReviewCount()).isZero();
         assertThat(dashboard.getStats().getAverageRating()).isZero();
@@ -176,11 +175,11 @@ class DashboardServiceReviewTest {
     void removeReview_incrementsVersion() {
         var dashboard = buildDashboard(1L);
         dashboard.getStats().setReviewCount(1);
-        dashboard.getStats().setRatingSum(8.0);
-        dashboard.getLatestReviews().add(new DashboardReviewItem(10L, 5L, "Game", 8, "...", LocalDate.now(), false));
+        dashboard.getStats().setRatingSum(4.0);
+        dashboard.getLatestReviews().add(new DashboardReviewItem(10L, 5L, "Game", 4, "...", LocalDateTime.now(), false));
         when(dashboardRepository.findByUserId(1L)).thenReturn(Optional.of(dashboard));
 
-        dashboardService.handleDashboardEvent(reviewDeletedEvent(1L, 10L, 8));
+        dashboardService.handleDashboardEvent(reviewDeletedEvent(1L, 10L, 4));
 
         assertThat(dashboard.getVersion()).isEqualTo(2L);
     }
@@ -194,7 +193,7 @@ class DashboardServiceReviewTest {
                 .gameTitle("Game")
                 .rating(rating)
                 .reviewPreview("Great game")
-                .createdAt(LocalDate.now())
+                .createdAt(LocalDateTime.now())
                 .build();
         return new IntegrationEvent<>(EventType.REVIEW_ADDED, "game-service", userId, LocalDateTime.now(), payload);
     }
@@ -205,7 +204,7 @@ class DashboardServiceReviewTest {
                 .gameId(5L)
                 .gameTitle("Game")
                 .rating(rating)
-                .createdAt(LocalDate.now())
+                .createdAt(LocalDateTime.now())
                 .build();
         return new IntegrationEvent<>(EventType.REVIEW_DELETED, "game-service", userId, LocalDateTime.now(), payload);
     }
