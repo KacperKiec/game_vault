@@ -1,5 +1,7 @@
 package io.kk.userinsightsservice.config;
 
+import org.bson.UuidRepresentation;
+import org.springframework.boot.mongodb.autoconfigure.MongoClientSettingsBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mapping.model.SnakeCaseFieldNamingStrategy;
@@ -15,5 +17,10 @@ public class MongoConfig {
         context.setFieldNamingStrategy(new SnakeCaseFieldNamingStrategy());
         context.setSimpleTypeHolder(conversions.getSimpleTypeHolder());
         return context;
+    }
+
+    @Bean
+    public MongoClientSettingsBuilderCustomizer uuidCustomizer() {
+        return builder -> builder.uuidRepresentation(UuidRepresentation.STANDARD);
     }
 }

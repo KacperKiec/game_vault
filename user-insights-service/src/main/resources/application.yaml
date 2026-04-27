@@ -34,3 +34,11 @@ app:
   insights:
     reconciliation:
       interval-ms: 60000
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.security.web.FilterChainProxy: DEBUG
+    org.springframework.web.cors: DEBUG
+    org.springframework.web: DEBUG

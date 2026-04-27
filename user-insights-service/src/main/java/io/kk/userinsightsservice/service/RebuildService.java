@@ -65,7 +65,7 @@ public class RebuildService {
 
                 switch ((String) meta.getOrDefault("listType", "")) {
                     case "WISHLIST" -> { listsPreview.getWishlist().add(preview);   stats.setWishlistCount(stats.getWishlistCount() + 1); }
-                    case "OWNED" -> { listsPreview.getPlaying().add(preview);    stats.setPlayingCount(stats.getPlayingCount() + 1); }
+                    case "OWNED" -> { listsPreview.getOwned().add(preview);    stats.setPlayingCount(stats.getPlayingCount() + 1); }
                     case "COMPLETED" -> { listsPreview.getCompleted().add(preview);  stats.setCompletedCount(stats.getCompletedCount() + 1); }
                 }
                 appendRecentActivity(dashboard, activity.getEventType(), activity.getOccurredAt(),
@@ -78,7 +78,7 @@ public class RebuildService {
 
                 switch ((String) meta.getOrDefault("listType", "")) {
                     case "WISHLIST" -> { if (listsPreview.getWishlist().removeIf(g -> g.getGameId().equals(gameId)))  stats.setWishlistCount(stats.getWishlistCount() - 1); }
-                    case "OWNED" -> { if (listsPreview.getPlaying().removeIf(g -> g.getGameId().equals(gameId)))   stats.setPlayingCount(stats.getPlayingCount() - 1); }
+                    case "OWNED" -> { if (listsPreview.getOwned().removeIf(g -> g.getGameId().equals(gameId)))   stats.setPlayingCount(stats.getPlayingCount() - 1); }
                     case "COMPLETED" -> { if (listsPreview.getCompleted().removeIf(g -> g.getGameId().equals(gameId))) stats.setCompletedCount(stats.getCompletedCount() - 1); }
                 }
                 appendRecentActivity(dashboard, activity.getEventType(), activity.getOccurredAt(),
@@ -94,12 +94,12 @@ public class RebuildService {
 
                 switch (from) {
                     case "WISHLIST" -> { if (listsPreview.getWishlist().removeIf(g -> g.getGameId().equals(gameId)))  stats.setWishlistCount(stats.getWishlistCount() - 1); }
-                    case "OWNED" -> { if (listsPreview.getPlaying().removeIf(g -> g.getGameId().equals(gameId)))   stats.setPlayingCount(stats.getPlayingCount() - 1); }
+                    case "OWNED" -> { if (listsPreview.getOwned().removeIf(g -> g.getGameId().equals(gameId)))   stats.setPlayingCount(stats.getPlayingCount() - 1); }
                     case "COMPLETED" -> { if (listsPreview.getCompleted().removeIf(g -> g.getGameId().equals(gameId))) stats.setCompletedCount(stats.getCompletedCount() - 1); }
                 }
                 switch (to) {
                     case "WISHLIST" -> { listsPreview.getWishlist().add(preview);   stats.setWishlistCount(stats.getWishlistCount() + 1); }
-                    case "OWNED" -> { listsPreview.getPlaying().add(preview);    stats.setPlayingCount(stats.getPlayingCount() + 1); }
+                    case "OWNED" -> { listsPreview.getOwned().add(preview);    stats.setPlayingCount(stats.getPlayingCount() + 1); }
                     case "COMPLETED" -> { listsPreview.getCompleted().add(preview);  stats.setCompletedCount(stats.getCompletedCount() + 1); }
                 }
 

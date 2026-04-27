@@ -116,7 +116,7 @@ class DashboardServiceCoreTest {
         assertThat(saved.getLatestReviews()).isEmpty();
         assertThat(saved.getRecentActivity()).isEmpty();
         assertThat(saved.getListsPreview().getWishlist()).isEmpty();
-        assertThat(saved.getListsPreview().getPlaying()).isEmpty();
+        assertThat(saved.getListsPreview().getOwned()).isEmpty();
         assertThat(saved.getListsPreview().getCompleted()).isEmpty();
     }
 

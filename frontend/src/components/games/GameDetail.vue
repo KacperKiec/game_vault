@@ -115,7 +115,7 @@
 
     <ReviewPanel
         :guid="Number.parseInt(id)"
-        :name="game.value.name"/>
+        :name="game.name"/>
   </div>
 </template>
 

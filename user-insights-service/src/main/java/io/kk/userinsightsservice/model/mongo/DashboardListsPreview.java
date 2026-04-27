@@ -9,6 +9,6 @@ import java.util.List;
 @AllArgsConstructor
 public class DashboardListsPreview {
     private List<DashboardGamePreview> wishlist;
-    private List<DashboardGamePreview> playing;
+    private List<DashboardGamePreview> owned;
     private List<DashboardGamePreview> completed;
 }

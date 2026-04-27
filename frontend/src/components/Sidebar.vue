@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import {ListType, GameParams} from "@/types/types";
-  import {onMounted, ref} from "vue";
+  import {onMounted, ref, watch} from "vue";
   import {storeToRefs} from "pinia";
   import {useAuthStore} from "@/store/auth";
   import {gameService} from "@/service/game-service";
@@ -9,11 +9,29 @@
   import {useRouter} from "vue-router";
 
   const router = useRouter();
-  defineProps<{
+  let props = defineProps<{
     wishlistSize: number,
     ownedSize: number,
     completedSize: number
   }>();
+
+  watch(() => props.wishlistSize, (size) => {
+    if (size) {
+      wishlistSize.value = size;
+    }
+  }, { immediate: true });
+
+  watch(() => props.ownedSize, (size) => {
+    if (size) {
+      ownedSize.value = size;
+    }
+  }, { immediate: true });
+
+  watch(() => props.completedSize, (size) => {
+    if (size) {
+      completedSize.value = size;
+    }
+  }, { immediate: true });
 
   const emit = defineEmits(['setGameList', 'setGameName', 'setGameParams', 'setDates']);
 
@@ -46,6 +64,9 @@
   const params = ref<GameParams>({ genres: [], platforms: [] });
   const selectedParams = ref<GameParams>({ genres: [], platforms: [] });
   const yearRange = ref([1980, 2026]);
+  const wishlistSize = ref<number>(props.wishlistSize);
+  const ownedSize = ref<number>(props.ownedSize);
+  const completedSize = ref<number>(props.completedSize);
 
   onMounted(async () => {
     try {

@@ -65,16 +65,16 @@ public class UserGameService {
             gl.setListType(gameListRequestDTO.listType());
 
             gameListRepository.save(gl);
-            sendDashboardEvent(userId, game, EventType.GAME_ADDED_TO_LIST, ListType.NONE);
+            sendDashboardEvent(userId, game, EventType.GAME_ADDED_TO_LIST, ListType.NONE, gl.getListType());
 
         } else if (gameListRequestDTO.listType() == ListType.NONE) {
             gameListRepository.delete(gameList.get());
-            sendDashboardEvent(userId, game, EventType.GAME_REMOVED_FROM_LIST, gameList.get().getListType());
+            sendDashboardEvent(userId, game, EventType.GAME_REMOVED_FROM_LIST, gameList.get().getListType(),  ListType.NONE);
         } else {
             var oldListType = gameList.get().getListType();
             gameList.get().setListType(gameListRequestDTO.listType());
-            gameListRepository.save(gameList.get());
-            sendDashboardEvent(userId, game, EventType.GAME_MOVED_BETWEEN_LISTS, oldListType);
+            var gl = gameListRepository.save(gameList.get());
+            sendDashboardEvent(userId, game, EventType.GAME_MOVED_BETWEEN_LISTS, oldListType, gl.getListType());
         }
     }
 
@@ -113,7 +113,7 @@ public class UserGameService {
                 .build();
     }
 
-    private void sendDashboardEvent(Long userId, GameDetailsDTO game, EventType eventType, ListType oldListType) {
+    private void sendDashboardEvent(Long userId, GameDetailsDTO game, EventType eventType, ListType oldListType, ListType newListType) {
         IntegrationEvent<?> event;
 
         if (eventType == EventType.GAME_MOVED_BETWEEN_LISTS) {
@@ -121,11 +121,11 @@ public class UserGameService {
                     .gameId(game.guid())
                     .gameTitle(game.name())
                     .fromList(oldListType.name())
-                    .toList(game.listType().name())
+                    .toList(newListType.name())
                     .build();
             event = new IntegrationEvent<>(eventType, "game-service", userId, LocalDateTime.now(), payload);
         } else {
-            var type = EventType.GAME_ADDED_TO_LIST == eventType ? game.listType() : oldListType;
+            var type = EventType.GAME_ADDED_TO_LIST == eventType ? newListType : oldListType;
             GameToListPayload payload = GameToListPayload.builder()
                     .gameId(game.guid())
                     .gameTitle(game.name())

@@ -50,7 +50,7 @@ class DashboardServiceGameTest {
 
         dashboardService.handleDashboardEvent(gameAddedEvent(1L, 42L, "Witcher", "OWNED"));
 
-        assertThat(dashboard.getListsPreview().getPlaying()).hasSize(1);
+        assertThat(dashboard.getListsPreview().getOwned()).hasSize(1);
         assertThat(dashboard.getStats().getPlayingCount()).isEqualTo(1);
         assertThat(dashboard.getListsPreview().getWishlist()).isEmpty();
         assertThat(dashboard.getListsPreview().getCompleted()).isEmpty();
@@ -75,7 +75,7 @@ class DashboardServiceGameTest {
         dashboardService.handleDashboardEvent(gameAddedEvent(1L, 42L, "Witcher", "NONE"));
 
         assertThat(dashboard.getListsPreview().getWishlist()).isEmpty();
-        assertThat(dashboard.getListsPreview().getPlaying()).isEmpty();
+        assertThat(dashboard.getListsPreview().getOwned()).isEmpty();
         assertThat(dashboard.getListsPreview().getCompleted()).isEmpty();
         assertThat(dashboard.getStats().getWishlistCount()).isZero();
     }
@@ -120,12 +120,12 @@ class DashboardServiceGameTest {
     void removeGameFromList_owned_removesFromPlayingAndDecrementsCount() {
         var dashboard = buildDashboard(1L);
         dashboard.getStats().setPlayingCount(1);
-        dashboard.getListsPreview().getPlaying().add(previewOf(42L));
+        dashboard.getListsPreview().getOwned().add(previewOf(42L));
         when(dashboardRepository.findByUserId(1L)).thenReturn(Optional.of(dashboard));
 
         dashboardService.handleDashboardEvent(gameRemovedEvent(1L, 42L, "OWNED"));
 
-        assertThat(dashboard.getListsPreview().getPlaying()).isEmpty();
+        assertThat(dashboard.getListsPreview().getOwned()).isEmpty();
         assertThat(dashboard.getStats().getPlayingCount()).isZero();
     }
 
@@ -189,12 +189,12 @@ class DashboardServiceGameTest {
     void updateGameInList_fromOwned_toWishlist() {
         var dashboard = buildDashboard(1L);
         dashboard.getStats().setPlayingCount(1);
-        dashboard.getListsPreview().getPlaying().add(previewOf(42L));
+        dashboard.getListsPreview().getOwned().add(previewOf(42L));
         when(dashboardRepository.findByUserId(1L)).thenReturn(Optional.of(dashboard));
 
         dashboardService.handleDashboardEvent(gameMovedEvent(1L, 42L, "Witcher", "OWNED", "WISHLIST"));
 
-        assertThat(dashboard.getListsPreview().getPlaying()).isEmpty();
+        assertThat(dashboard.getListsPreview().getOwned()).isEmpty();
         assertThat(dashboard.getStats().getPlayingCount()).isZero();
         assertThat(dashboard.getListsPreview().getWishlist()).hasSize(1);
         assertThat(dashboard.getStats().getWishlistCount()).isEqualTo(1);

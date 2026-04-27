@@ -2,7 +2,6 @@ package io.kk.userinsightsservice.model.postgres;
 
 import io.kk.type.EventType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -38,16 +37,13 @@ public class Activity {
     @Column(name = "occurred_at", nullable = false)
     private LocalDateTime occurredAt;
 
-    @NotNull
     @Column(name = "related_game_id")
     private Long relatedGameId;
 
-    @NotBlank
     @Column(name = "related_game_name")
     private String relatedGameName;
 
-    @NotNull
-    @Column(name = "metadata", nullable = false)
+    @Column(name = "metadata")
     @JdbcTypeCode(SqlTypes.JSON)
     private Map<String, Object> metadata;
 }

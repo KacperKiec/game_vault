@@ -89,15 +89,15 @@ class DashboardServiceActivityTest {
         var dashboard = buildDashboard(1L);
         when(dashboardRepository.findByUserId(1L)).thenReturn(Optional.of(dashboard));
 
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= 6; i++) {
             dashboardService.handleDashboardEvent(gameAddedEvent(1L, (long) i, "Game " + i, "WISHLIST"));
         }
-        assertThat(dashboard.getRecentActivity()).hasSize(10);
+        assertThat(dashboard.getRecentActivity()).hasSize(6);
         assertThat(dashboard.getRecentActivity().getFirst().getGameId()).isEqualTo(1L);
 
         dashboardService.handleDashboardEvent(gameAddedEvent(1L, 99L, "New Game", "COMPLETED"));
 
-        assertThat(dashboard.getRecentActivity()).hasSize(10);
+        assertThat(dashboard.getRecentActivity()).hasSize(6);
         assertThat(dashboard.getRecentActivity().getLast().getGameId()).isEqualTo(99L);
         assertThat(dashboard.getRecentActivity().getFirst().getGameId()).isEqualTo(2L);
     }

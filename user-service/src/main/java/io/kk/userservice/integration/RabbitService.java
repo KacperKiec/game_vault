@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class RabbitService {
     private final RabbitTemplate rabbitTemplate;
 
-    @Value("${app.rabbit.queue}")
+    @Value("${app.rabbit.dashboard.queue}")
     private String queueName;
 
     public void sendDashboardEvent(IntegrationEvent<UserRegisteredPayload> event) {

@@ -1,5 +1,6 @@
 package io.kk.userinsightsservice.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.kk.envelope.IntegrationEvent;
 import io.kk.payload.GameMovedBetweenListsPayload;
 import io.kk.payload.GameToListPayload;
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class DashboardService {
 
     private final DashboardRepository dashboardRepository;
+    private final ObjectMapper objectMapper;
 
     public void handleDashboardEvent(IntegrationEvent<?> event) {
         switch (event.getEventType()) {
@@ -41,10 +43,8 @@ public class DashboardService {
     }
 
     public Boolean isEventApplied(long userId, UUID eventId) {
-        var dashboard = dashboardRepository.findByUserId(userId).orElseThrow(
-                () -> new DashboardException("Dashboard not found for user: " + userId)
-        );
-        return dashboard.getLastProcessedEventId().equals(eventId);
+        var dashboard = dashboardRepository.findByUserId(userId);
+        return dashboard.map(dashboardDocument -> dashboardDocument.getLastProcessedEventId().equals(eventId)).orElse(false);
     }
 
     private void createDashboard(IntegrationEvent<?> event) {
@@ -53,7 +53,8 @@ public class DashboardService {
         dashboard.setVersion(1L);
         dashboard.setUpdatedAt(LocalDateTime.now());
 
-        if (event.getPayload() instanceof UserRegisteredPayload payload) {
+        if (event.getEventType() == EventType.USER_REGISTERED) {
+            var payload = extractPayload(event, UserRegisteredPayload.class);
             dashboard.setUsername(payload.getUsername());
             dashboard.setEmail(payload.getEmail());
         }
@@ -70,8 +71,10 @@ public class DashboardService {
     private void addReview(IntegrationEvent<?> event) {
         var dashboard = getUserDashboard(event.getUserId());
         dashboard.incrementVersion();
+        dashboard.setUpdatedAt(LocalDateTime.now());
 
-        if (event.getPayload() instanceof ReviewPayload payload) {
+        if (event.getEventType() == EventType.REVIEW_ADDED) {
+            var payload = extractPayload(event, ReviewPayload.class);
             var reviews = dashboard.getLatestReviews();
             if (reviews.size() >= 6) reviews.removeFirst();
             reviews.add(new DashboardReviewItem(
@@ -99,8 +102,10 @@ public class DashboardService {
     private void removeReview(IntegrationEvent<?> event) {
         var dashboard = getUserDashboard(event.getUserId());
         dashboard.incrementVersion();
+        dashboard.setUpdatedAt(LocalDateTime.now());
 
-        if (event.getPayload() instanceof ReviewPayload payload) {
+        if (event.getEventType() == EventType.REVIEW_DELETED) {
+            var payload = extractPayload(event, ReviewPayload.class);
             dashboard.getLatestReviews().stream()
                     .filter(r -> r.getReviewId().equals(payload.getReviewId()))
                     .findFirst()
@@ -122,8 +127,10 @@ public class DashboardService {
     private void addGameToList(IntegrationEvent<?> event) {
         var dashboard = getUserDashboard(event.getUserId());
         dashboard.incrementVersion();
+        dashboard.setUpdatedAt(LocalDateTime.now());
 
-        if (event.getPayload() instanceof GameToListPayload payload) {
+        if (event.getEventType() == EventType.GAME_ADDED_TO_LIST) {
+            var payload = extractPayload(event, GameToListPayload.class);
             var preview = new DashboardGamePreview();
             preview.setGameId(payload.getGameId());
             preview.setTitle(payload.getGameTitle());
@@ -133,7 +140,7 @@ public class DashboardService {
 
             switch (payload.getListType()) {
                 case "WISHLIST" -> { listsPreview.getWishlist().add(preview); stats.setWishlistCount(stats.getWishlistCount() + 1); }
-                case "OWNED" -> { listsPreview.getPlaying().add(preview);  stats.setPlayingCount(stats.getPlayingCount() + 1); }
+                case "OWNED" -> { listsPreview.getOwned().add(preview);  stats.setPlayingCount(stats.getPlayingCount() + 1); }
                 case "COMPLETED" -> { listsPreview.getCompleted().add(preview); stats.setCompletedCount(stats.getCompletedCount() + 1); }
             }
 
@@ -149,14 +156,16 @@ public class DashboardService {
     private void removeGameFromList(IntegrationEvent<?> event) {
         var dashboard = getUserDashboard(event.getUserId());
         dashboard.incrementVersion();
+        dashboard.setUpdatedAt(LocalDateTime.now());
 
-        if (event.getPayload() instanceof GameToListPayload payload) {
+        if (event.getEventType() == EventType.GAME_REMOVED_FROM_LIST) {
+            var payload = extractPayload(event, GameToListPayload.class);
             var listsPreview = dashboard.getListsPreview();
             var stats = dashboard.getStats();
 
             switch (payload.getListType()) {
                 case "WISHLIST" -> { if (listsPreview.getWishlist().removeIf(g -> g.getGameId().equals(payload.getGameId()))) stats.setWishlistCount(stats.getWishlistCount() - 1); }
-                case "OWNED" -> { if (listsPreview.getPlaying().removeIf(g -> g.getGameId().equals(payload.getGameId())))  stats.setPlayingCount(stats.getPlayingCount() - 1); }
+                case "OWNED" -> { if (listsPreview.getOwned().removeIf(g -> g.getGameId().equals(payload.getGameId())))  stats.setPlayingCount(stats.getPlayingCount() - 1); }
                 case "COMPLETED" -> { if (listsPreview.getCompleted().removeIf(g -> g.getGameId().equals(payload.getGameId()))) stats.setCompletedCount(stats.getCompletedCount() - 1); }
             }
 
@@ -172,8 +181,10 @@ public class DashboardService {
     private void updateGameInList(IntegrationEvent<?> event) {
         var dashboard = getUserDashboard(event.getUserId());
         dashboard.incrementVersion();
+        dashboard.setUpdatedAt(LocalDateTime.now());
 
-        if (event.getPayload() instanceof GameMovedBetweenListsPayload payload) {
+        if (event.getEventType() == EventType.GAME_MOVED_BETWEEN_LISTS) {
+            var payload = extractPayload(event, GameMovedBetweenListsPayload.class);
             var preview = new DashboardGamePreview();
             preview.setGameId(payload.getGameId());
             preview.setTitle(payload.getGameTitle());
@@ -183,13 +194,13 @@ public class DashboardService {
 
             switch (payload.getFromList()) {
                 case "WISHLIST" -> { if (listsPreview.getWishlist().removeIf(g -> g.getGameId().equals(payload.getGameId()))) stats.setWishlistCount(stats.getWishlistCount() - 1); }
-                case "OWNED" -> { if (listsPreview.getPlaying().removeIf(g -> g.getGameId().equals(payload.getGameId())))  stats.setPlayingCount(stats.getPlayingCount() - 1); }
+                case "OWNED" -> { if (listsPreview.getOwned().removeIf(g -> g.getGameId().equals(payload.getGameId())))  stats.setPlayingCount(stats.getPlayingCount() - 1); }
                 case "COMPLETED" -> { if (listsPreview.getCompleted().removeIf(g -> g.getGameId().equals(payload.getGameId()))) stats.setCompletedCount(stats.getCompletedCount() - 1); }
             }
 
             switch (payload.getToList()) {
                 case "WISHLIST" -> { listsPreview.getWishlist().add(preview); stats.setWishlistCount(stats.getWishlistCount() + 1); }
-                case "OWNED" -> { listsPreview.getPlaying().add(preview);  stats.setPlayingCount(stats.getPlayingCount() + 1); }
+                case "OWNED" -> { listsPreview.getOwned().add(preview);  stats.setPlayingCount(stats.getPlayingCount() + 1); }
                 case "COMPLETED" -> { listsPreview.getCompleted().add(preview); stats.setCompletedCount(stats.getCompletedCount() + 1); }
             }
 
@@ -212,7 +223,15 @@ public class DashboardService {
         item.setDetails(details);
 
         var activity = dashboard.getRecentActivity();
-        if (activity.size() >= 10) activity.removeFirst();
+        if (activity.size() >= 6) activity.removeFirst();
         activity.add(item);
+    }
+
+    private <T> T extractPayload(IntegrationEvent<?> event, Class<T> type) {
+        Object payload = event.getPayload();
+        if (type.isInstance(payload)) {
+            return type.cast(payload);
+        }
+        return objectMapper.convertValue(payload, type);
     }
 }
