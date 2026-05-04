@@ -121,6 +121,23 @@ services:
     networks:
       - net
 
+  user-insights-service:
+    build: ./user-insights-service
+    container_name: user-insights-service
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://activity-db:5432/activity_db
+      - SPRING_DATASOURCE_USERNAME=activity
+      - SPRING_DATASOURCE_PASSWORD=activity
+      - SPRING_DATA_MONGODB_URI=mongodb://dash:dash@dashboard-db:27017/dashboard_db?authSource=admin
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - APP_SECRET_KEY=dlugi_i_sekretny_klucz_do_podpisywania_tokenow
+    depends_on:
+      - activity-db
+      - dashboard-db
+      - rabbitmq
+    networks:
+      - net
+
   gateway-service:
     build: ./gateway-service
     container_name: gateway-service
