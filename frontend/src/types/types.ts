@@ -88,6 +88,7 @@ export interface Review {
 
 export interface ReviewRequest {
     guid: number,
+    gameName: string,
     content: string,
     rating: number
 }
@@ -104,4 +105,53 @@ export interface AppNotification {
     metadata: Record<string, any>;
     createdAt: Date;
     read: boolean;
+}
+
+export interface DashboardDocument {
+    id: string;
+    userId: number;
+    updatedAt: Date;
+    username: string;
+    email: string;
+    stats: DashboardStats;
+    listsPreview: DashboardListsPreview;
+    recentActivity: DashboardActivityItem[];
+    latestReviews: DashboardReviewItem[];
+}
+
+export interface DashboardStats {
+    wishlistCount: number;
+    playingCount: number;
+    completedCount: number;
+    reviewCount: number;
+    ratingSum: number;
+}
+
+export interface DashboardListsPreview {
+    wishlist: DashboardGamePreview[];
+    owned: DashboardGamePreview[];
+    completed: DashboardGamePreview[];
+}
+
+export interface DashboardGamePreview {
+    gameId: number;
+    title: string;
+}
+
+export interface DashboardReviewItem {
+    reviewId: number;
+    gameId: number;
+    gameTitle: string;
+    rating: number;
+    reviewPreview: string;
+    createdAt: Date;
+    isDeleted: boolean;
+}
+
+export interface DashboardActivityItem {
+    type: string;
+    occurredAt: Date;
+    gameId: number;
+    gameTitle: string;
+    details: Record<string, any>;
 }

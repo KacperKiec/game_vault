@@ -27,6 +27,10 @@ spring:
                 - Path=/notification/**,/ws/notifications/**
               metadata:
                 websocket: true
+            - id: dashboard-service
+              uri: "${DASHBOARD_SERVICE_URL: http://localhost:8060}"
+              predicates:
+                - Path=/dashboard
 management:
   endpoints:
     web:

@@ -10,9 +10,11 @@ import {gameListService} from "@/service/game-list-service";
 import {useAuthStore} from "@/store/auth";
 import {gameService} from "@/service/game-service";
 import {useUiStore} from '@/store/ui';
+import {useRouter} from "vue-router";
 
-const uiStore = useUiStore();
+  const uiStore = useUiStore();
   const authStore = useAuthStore();
+  const router = useRouter();
   const { isAuthenticated } = storeToRefs(authStore);
   const isAuthOpen = ref(false);
   const displayedGames = ref<Game[]>([]);
@@ -142,11 +144,12 @@ const uiStore = useUiStore();
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     lists.value = {wishlist: [], ownedGames: [], completedGames: []};
     if (activeList.value !== ListType.NONE) {
       handleGameList(ListType.NONE);
     }
+    await router.push('/');
   }
 </script>
 

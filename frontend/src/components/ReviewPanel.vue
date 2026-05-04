@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import {Review, ReviewRequest} from "@/types/types";
-  import {onMounted, ref} from "vue";
+import {onMounted, ref, watch} from "vue";
   import {useAuthStore} from "@/store/auth";
   import {storeToRefs} from "pinia";
   import {reviewService} from "@/service/review-service";
@@ -10,15 +10,23 @@ import {Review, ReviewRequest} from "@/types/types";
 
   const props = defineProps<{
     guid: number;
+    name: string;
   }>();
 
   const reviews = ref<Review[]>([]);
   const userReview = ref<Review | null>(null);
   const newReview = ref<ReviewRequest>({
     guid: props.guid,
+    gameName: props.name,
     content: '',
     rating: 5
   });
+
+  watch(() => props.name, (newName) => {
+    if (newName) {
+      newReview.value.gameName = newName;
+    }
+  }, { immediate: true });
 
   const handleRemove = async () => {
     if (!userReview.value) return;
@@ -34,6 +42,7 @@ import {Review, ReviewRequest} from "@/types/types";
   const handleAddReview = async () => {
     const response = await reviewService.addReview(newReview.value);
     if (response) {
+      console.log(response);
       userReview.value = response;
 
       const contains = reviews.value.find(r => r.id === response.id);

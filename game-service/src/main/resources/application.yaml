@@ -28,6 +28,11 @@ app:
     key: ${RAWGIO_API_KEY}
     uri: https://api.rawg.io/api
   rabbit:
-    queue: "notification-queue"
-    exchange: "notification-exchange"
-    routing-key: "add.notification"
+    notification:
+      queue: "notification-queue"
+      exchange: "notification-exchange"
+      routing-key: "add.notification"
+    dashboard:
+      queue: "dashboard-queue"
+      exchange: "dashboard-exchange"
+      routing-key: "add.dashboard"

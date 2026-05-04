@@ -12,9 +12,19 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: dev
+    password: dev
+    virtual-host: /
 server:
   port: 8080
 
-
 app:
   secret-key: "dlugi_i_sekretny_klucz_do_podpisywania_tokenow"
+  rabbit:
+    dashboard:
+      queue: "dashboard-queue"
+      exchange: "dashboard-exchange"
+      routing-key: "add.dashboard"

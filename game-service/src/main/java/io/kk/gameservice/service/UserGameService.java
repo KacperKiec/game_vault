@@ -1,18 +1,24 @@
 package io.kk.gameservice.service;
 
+import io.kk.envelope.IntegrationEvent;
 import io.kk.gameservice.dto.GameDetailsDTO;
 import io.kk.gameservice.dto.GameListRequestDTO;
 import io.kk.gameservice.dto.GameListResponseDTO;
 import io.kk.gameservice.exception.GameNotFoundException;
 import io.kk.gameservice.exception.UserNotFoundException;
 import io.kk.gameservice.integration.InternalServiceClient;
+import io.kk.gameservice.integration.RabbitService;
 import io.kk.gameservice.model.GameList;
 import io.kk.gameservice.model.ListType;
 import io.kk.gameservice.repository.GameListRepository;
+import io.kk.payload.GameMovedBetweenListsPayload;
+import io.kk.payload.GameToListPayload;
+import io.kk.type.EventType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -28,6 +34,7 @@ public class UserGameService {
     private final GameListRepository gameListRepository;
     private final GameAPIService gameAPIService;
     private final InternalServiceClient internalServiceClient;
+    private final RabbitService rabbitService;
 
     /**
      * Modifies the state of a game within a user's collection.
@@ -58,12 +65,16 @@ public class UserGameService {
             gl.setListType(gameListRequestDTO.listType());
 
             gameListRepository.save(gl);
+            sendDashboardEvent(userId, game, EventType.GAME_ADDED_TO_LIST, ListType.NONE, gl.getListType());
 
         } else if (gameListRequestDTO.listType() == ListType.NONE) {
             gameListRepository.delete(gameList.get());
+            sendDashboardEvent(userId, game, EventType.GAME_REMOVED_FROM_LIST, gameList.get().getListType(),  ListType.NONE);
         } else {
+            var oldListType = gameList.get().getListType();
             gameList.get().setListType(gameListRequestDTO.listType());
-            gameListRepository.save(gameList.get());
+            var gl = gameListRepository.save(gameList.get());
+            sendDashboardEvent(userId, game, EventType.GAME_MOVED_BETWEEN_LISTS, oldListType, gl.getListType());
         }
     }
 
@@ -100,5 +111,28 @@ public class UserGameService {
                 .ownedGames(gameListCreator(userId, ListType.OWNED))
                 .completedGames(gameListCreator(userId, ListType.COMPLETED))
                 .build();
+    }
+
+    private void sendDashboardEvent(Long userId, GameDetailsDTO game, EventType eventType, ListType oldListType, ListType newListType) {
+        IntegrationEvent<?> event;
+
+        if (eventType == EventType.GAME_MOVED_BETWEEN_LISTS) {
+            GameMovedBetweenListsPayload payload = GameMovedBetweenListsPayload.builder()
+                    .gameId(game.guid())
+                    .gameTitle(game.name())
+                    .fromList(oldListType.name())
+                    .toList(newListType.name())
+                    .build();
+            event = new IntegrationEvent<>(eventType, "game-service", userId, LocalDateTime.now(), payload);
+        } else {
+            var type = EventType.GAME_ADDED_TO_LIST == eventType ? newListType : oldListType;
+            GameToListPayload payload = GameToListPayload.builder()
+                    .gameId(game.guid())
+                    .gameTitle(game.name())
+                    .listType(type.name())
+                    .build();
+            event = new IntegrationEvent<>(eventType, "game-service", userId, LocalDateTime.now(), payload);
+        }
+        rabbitService.sendDashboardEvent(event);
     }
 }

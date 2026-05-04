@@ -26,8 +26,12 @@ const handleLogout = () => {
 <template>
   <div class="navbar bg-base-200 border-b border-base-300 px-4 mb-6 shadow-sm rounded-lg">
     <div class="flex-1">
-      <RouterLink to="/" class="text-2xl font-black tracking-tighter text-primary uppercase">
+      <RouterLink to="/" class="text-2xl font-black tracking-tighter text-primary uppercase mr-4">
         Game Vault
+      </RouterLink>
+
+      <RouterLink to="/dashboard" v-if="isAuthenticated" class="text-l font-black tracking-tighter text-secondary uppercase">
+        Dashboard
       </RouterLink>
     </div>
 

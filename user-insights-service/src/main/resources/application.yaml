@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: user-insights-service
+  datasource:
+    url: jdbc:postgresql://localhost:5435/activity_db
+    username: activity
+    password: activity
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+  mongodb:
+    uri: mongodb://dash:dash@localhost:27017/dashboard_db?authSource=admin
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: dev
+    password: dev
+    virtual-host: /
+
+server:
+  port: 8060
+
+app:
+  secret-key: "dlugi_i_sekretny_klucz_do_podpisywania_tokenow"
+  rabbit:
+    dashboard:
+      queue: "dashboard-queue"
+      exchange: "dashboard-exchange"
+      routing-key: "add.dashboard"
+  insights:
+    reconciliation:
+      interval-ms: 60000
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.security.web.FilterChainProxy: DEBUG
+    org.springframework.web.cors: DEBUG
+    org.springframework.web: DEBUG

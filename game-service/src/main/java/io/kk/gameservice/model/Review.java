@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -22,15 +22,18 @@ public class Review {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "content")
+    @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "rating")
+    @Column(name = "rating", nullable = false)
     @Min(value = 1)
     @Max(value = 5)
     private Integer rating;
 
-    @Column(name = "date", nullable = false)
-    private LocalDate date;
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime date;
+
+    @Column(name = "game_name", nullable = false)
+    private String gameName;
 
 }

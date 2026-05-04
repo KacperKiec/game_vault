@@ -17,9 +17,9 @@ public class RabbitMQConfig {
     public final String EXCHANGE_NAME;
     public final String ROUTING_KEY;
 
-    public RabbitMQConfig(@Value("${app.rabbit.queue}") String queueName,
-                          @Value("${app.rabbit.exchange}") String exchangeName,
-                          @Value("${app.rabbit.routing-key}") String routingKey) {
+    public RabbitMQConfig(@Value("${app.rabbit.notification.queue}") String queueName,
+                          @Value("${app.rabbit.notification.exchange}") String exchangeName,
+                          @Value("${app.rabbit.notification.routing-key}") String routingKey) {
         QUEUE_NAME = queueName;
         EXCHANGE_NAME = exchangeName;
         ROUTING_KEY = routingKey;
